@@ -21,7 +21,7 @@ namespace JiraTools.Core.Models
          Sprint ,
          EpicId ,
          Rank,
-        Labels
+         Labels
     }
 
     /// <summary>
@@ -43,7 +43,7 @@ namespace JiraTools.Core.Models
         public string Rank { get => (string)this[CardFieldMeta.Rank]; }
 
         public IList<HistoryItem> History { get;  set; }
-        public IList<string> Labels { get; set; }
+        public IEnumerable<string> Labels { get => (IEnumerable<string>)this[CardFieldMeta.Labels]; }
         public IList<string> FixVersions { get; set; }
 
         public class HistoryItem
@@ -79,7 +79,6 @@ namespace JiraTools.Core.Models
         {
             Id = id;
             History = new List<HistoryItem>();
-            Labels = new List<string>();
             FixVersions = new List<string>();
         }
 

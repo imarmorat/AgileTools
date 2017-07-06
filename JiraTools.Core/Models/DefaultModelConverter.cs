@@ -34,7 +34,15 @@ namespace JiraTools.Core.Models
                 new Tuple<string, CardFieldMeta, Func<dynamic, object>>("Status", CardFieldMeta.Status, o=> (string) o.name),
                 new Tuple<string, CardFieldMeta, Func<dynamic, object>>("Epic Link", CardFieldMeta.EpicId, o=> (string) o ),
                 new Tuple<string, CardFieldMeta, Func<dynamic, object>>("Rank", CardFieldMeta.Rank, o=> (string) o ),
-                new Tuple<string, CardFieldMeta, Func<dynamic, object>>("Labels", CardFieldMeta.Labels, o=> (string) o ),
+                new Tuple<string, CardFieldMeta, Func<dynamic, object>>("Labels", CardFieldMeta.Labels, o=>
+                {
+                    var list = new List<string>();
+
+                    foreach (var lbl in o)
+                        list.Add( (string) lbl );
+
+                    return list;
+                    }),
             };
 
             // for all non custom fields
@@ -79,8 +87,6 @@ namespace JiraTools.Core.Models
                 }
             }
 
-            foreach (var lbl in issue.fields.labels)
-                card.Labels.Add((string) lbl);
 
             foreach (var fv in issue.fields.versions)
                 card.FixVersions.Add((string) fv);
