@@ -14,11 +14,34 @@ namespace AgileTools.Core.Models
     /// </summary>
     public class DefaultModelConverter : IModelConverter
     {
-        #region Private
+        #region Protected
 
-        private List<Tuple<string, CardFieldMeta, Func<dynamic, object>>> _jiraFieldMapping = new List<Tuple<string, CardFieldMeta, Func<dynamic, object>>>
+        protected List<Tuple<string, CardFieldMeta, Func<dynamic, object>>> _jiraFieldMapping;
+        protected Dictionary<string, StatusCategory> _jiraStatusCategoryMapping = new Dictionary<string, StatusCategory>
+        {
+            { "new", StatusCategory.New },
+            { "indeterminate", StatusCategory.InProgress },
+            { "done", StatusCategory.Final }
+        };
+        private Dictionary<string, CardType> _jiraTicketTypeMapping = new Dictionary<string, CardType>
+        {
+            { "Story", CardType.Story },
+            { "Bug", CardType.Bug },
+            { "Epic", CardType.Feature },
+            { "Task", CardType.Enabler }
+        };
+
+        #endregion
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        public DefaultModelConverter()
+        {
+            _jiraFieldMapping = new List<Tuple<string, CardFieldMeta, Func<dynamic, object>>>
          {
                 new Tuple<string, CardFieldMeta, Func<dynamic, object>>("Summary", CardFieldMeta.Title, o=> (string) o),
+                new Tuple<string, CardFieldMeta, Func<dynamic, object>>("Issue Type", CardFieldMeta.Type, o=> IdentifyCardType(o)),
                 new Tuple<string, CardFieldMeta, Func<dynamic, object>>("Description", CardFieldMeta.Description, o=> (string) o),
                 new Tuple<string, CardFieldMeta, Func<dynamic, object>>("Created", CardFieldMeta.Created, o=> (DateTime) o),
                 new Tuple<string, CardFieldMeta, Func<dynamic, object>>("Resolved", CardFieldMeta.ResolutionDate, o=> (DateTime?) o),
@@ -26,20 +49,16 @@ namespace AgileTools.Core.Models
                 new Tuple<string, CardFieldMeta, Func<dynamic, object>>("Story Points", CardFieldMeta.Points, o=> (int?) o),
                 new Tuple<string, CardFieldMeta, Func<dynamic, object>>("Sprint", CardFieldMeta.Sprint, o=> (int?) null),
                 new Tuple<string, CardFieldMeta, Func<dynamic, object>>("Flagged", CardFieldMeta.Flagged, o=> o != null),
-                new Tuple<string, CardFieldMeta, Func<dynamic, object>>("Resolution", CardFieldMeta.Resolution, o=> (string) o),
-                new Tuple<string, CardFieldMeta, Func<dynamic, object>>("Status", CardFieldMeta.Status, o=> (string) o.name),
+                new Tuple<string, CardFieldMeta, Func<dynamic, object>>("Resolution", CardFieldMeta.Resolution, o=> o != null ? (string) o.name : null),
+                new Tuple<string, CardFieldMeta, Func<dynamic, object>>("Status", CardFieldMeta.Status, o=> ConvertStatus(o) ),
                 new Tuple<string, CardFieldMeta, Func<dynamic, object>>("Epic Link", CardFieldMeta.EpicId, o=> (string) o ),
                 new Tuple<string, CardFieldMeta, Func<dynamic, object>>("Rank", CardFieldMeta.Rank, o=> (string) o ),
                 new Tuple<string, CardFieldMeta, Func<dynamic, object>>("Labels", CardFieldMeta.Labels, o=> ExtractList<string>(o) ),
-        };
-        private Dictionary<string, StatusCategory> _jiraStatusCategoryMapping = new Dictionary<string, StatusCategory>
-        {
-            { "new", StatusCategory.New },
-            { "indeterminate", StatusCategory.InProgress },
-            { "done", StatusCategory.Final }
-        };
-
-        #endregion
+                new Tuple<string, CardFieldMeta, Func<dynamic, object>>("Assignee", CardFieldMeta.Assignee, o=> ConvertUser(o) ),
+                new Tuple<string, CardFieldMeta, Func<dynamic, object>>("Reporter", CardFieldMeta.Reporter, o=> ConvertUser(o) ),
+                new Tuple<string, CardFieldMeta, Func<dynamic, object>>("Creator", CardFieldMeta.Creator, o=> ConvertUser(o) ),
+            };
+        }
 
         public JiraField ConvertField(dynamic field)
         {
@@ -48,14 +67,29 @@ namespace AgileTools.Core.Models
 
         public CardStatus ConvertStatus(dynamic status)
         {
+            if (status == null)
+                return null;
+
             var category = (string)status.statusCategory.key;
-            return new CardStatus(
-                (string)status.id, 
-                (string)status.name, 
-                (string)status.description, 
+            return
+                new CardStatus(
+                (string)status.id,
+                (string)status.name,
+                (string)status.description,
                 _jiraStatusCategoryMapping.ContainsKey(category) ?
                     _jiraStatusCategoryMapping[category] :
                     StatusCategory.Unknown);
+        }
+
+        public static User ConvertUser(dynamic user)
+        {
+            return user == null ? null :
+                new User
+                {
+                    Id = (string)user.key,
+                    FullName = (string)user.name,
+                    Email = (string)user.emailAddress
+                };
         }
 
         public Card ConvertTicket(dynamic issue, IEnumerable<JiraField> fieldsMeta)
@@ -101,6 +135,14 @@ namespace AgileTools.Core.Models
             }
 
             return card;
+        }
+
+        private CardType IdentifyCardType(dynamic ct)
+        {
+            if (ct == null || !_jiraTicketTypeMapping.ContainsKey((string)ct.name))
+                return CardType.Unknown;
+
+            return _jiraTicketTypeMapping[(string)ct.name];
         }
 
         #region Helpers

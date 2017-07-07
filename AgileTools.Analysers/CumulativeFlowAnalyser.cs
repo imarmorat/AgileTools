@@ -12,7 +12,7 @@ namespace AgileTools.Analysers
     {
         #region Private
 
-        private IList<Card> _tickets;
+        private IEnumerable<Card> _cards;
         private DateTime _dateFrom;
         private DateTime _dateTo;
         private TimeSpan _bucketSize;
@@ -28,12 +28,12 @@ namespace AgileTools.Analysers
         /// <param name="bucketSize">size of the bucket. if not specifed, set to a day</param>
         /// <param name="from">start date - if not specified, taking the earliest created ticket</param>
         /// <param name="to">end date - if not specified, taking the latest ticket closure</param>
-        public CumulativeFlowAnalyser(JiraService jiraService, IList<Card> tickets, TimeSpan? bucketSize = null,DateTime? from = null, DateTime? to = null)
+        public CumulativeFlowAnalyser(JiraService jiraService, IEnumerable<Card> tickets, TimeSpan? bucketSize = null,DateTime? from = null, DateTime? to = null)
         {
             _jiraService = jiraService ?? throw new ArgumentNullException(nameof(jiraService));
-            _tickets = tickets;
-            _dateFrom = from ?? _tickets.Min(t => t.CreationDate);
-            _dateTo = to ?? _tickets.Max(t => t.ClosureDate) ?? throw new ArgumentException("Cannot infer an end date", nameof(to));
+            _cards = tickets;
+            _dateFrom = from ?? _cards.Min(t => t.CreationDate);
+            _dateTo = to ?? _cards.Max(t => t.ClosureDate) ?? throw new ArgumentException("Cannot infer an end date", nameof(to));
             _bucketSize = bucketSize ?? new TimeSpan(1, 0, 0);
 
             if (_dateFrom > _dateTo)
@@ -54,9 +54,9 @@ namespace AgileTools.Analysers
 
                 _jiraService.Statuses.ForEach(s =>
                 {
-                    var totalPoints = 0;
-                    //_tickets.Where(t => _jiraService.GetFieldAtDate<double?>(t, JiraTicket.Fields.Status, bucket.To) == s.Id).Sum()
-
+                    var totalPoints = _cards
+                        .Where(card => card.GetFieldAtDate<string>(CardFieldMeta.Status, bucket.To) == s.Name)
+                        .Sum( card => card.GetFieldAtDate<double>(CardFieldMeta.Points, bucket.To));
                     bucket.FlowData.Add(s, totalPoints);
                 });
 

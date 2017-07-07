@@ -19,9 +19,9 @@ namespace AgileTools.Core.Models
             Category = category;
         }
 
-        public override bool Equals(object obj)
+        public override string ToString()
         {
-            return base.Equals(obj);
+            return $"{Name} ({Category})";
         }
     }
 }

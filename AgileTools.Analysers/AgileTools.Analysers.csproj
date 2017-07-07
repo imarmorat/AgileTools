@@ -47,6 +47,12 @@
     <Compile Include="CumulativeFlowAnalyser.cs" />
     <Compile Include="CumulativeFlowResult.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ReleaseAnalyser.cs" />
+    <Compile Include="ReleaseResult.cs" />
+    <Compile Include="RuleBreach.cs" />
+    <Compile Include="RuleCheckerAnalyser.cs" />
+    <Compile Include="RuleCheckerResult.cs" />
+    <Compile Include="RuleDefinition.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\AgileTools.Core\AgileTools.Core.csproj">

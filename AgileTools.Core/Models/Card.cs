@@ -10,20 +10,24 @@ namespace AgileTools.Core.Models
     /// </summary>
     public enum CardFieldMeta
     {
-         Id ,
-         Title ,
-         Description ,
-         Status ,
-         Points ,
-         Resolution ,
-         ResolutionDate ,
-         Created ,
-         DueDate ,
-         Flagged ,
-         Sprint ,
-         EpicId ,
-         Rank,
-         Labels
+        Id,
+        Title,
+        Description,
+        Status,
+        Points,
+        Resolution,
+        ResolutionDate,
+        Created,
+        DueDate,
+        Flagged,
+        Sprint,
+        EpicId,
+        Assignee,
+        Labels,
+        Creator,
+        Reporter,
+        Rank,
+        Type
     }
 
     /// <summary>
@@ -41,21 +45,25 @@ namespace AgileTools.Core.Models
         #region Card data fields
 
         public string Id { get; protected set; }
-        public string Title { get => (string)this[CardFieldMeta.Title];  }
-        public string Description { get => (string) this[CardFieldMeta.Description ]; }
-        public DateTime CreationDate { get => (DateTime) this[CardFieldMeta.Created ];  }
-        public DateTime? ClosureDate { get => (DateTime?) this[CardFieldMeta.ResolutionDate ]; }
-        public DateTime? DueDate { get => (DateTime?) this[CardFieldMeta.DueDate ];  }
-        public string Status { get => (string)this[CardFieldMeta.Status]; }
-        public bool IsFlagged { get => (bool) this[CardFieldMeta.Flagged]; }
+        public string Title { get => (string)this[CardFieldMeta.Title]; }
+        public string Description { get => (string)this[CardFieldMeta.Description]; }
+        public CardType Type { get => (CardType)this[CardFieldMeta.Type]; }
+        public DateTime CreationDate { get => (DateTime)this[CardFieldMeta.Created]; }
+        public DateTime? ClosureDate { get => (DateTime?)this[CardFieldMeta.ResolutionDate]; }
+        public DateTime? DueDate { get => (DateTime?)this[CardFieldMeta.DueDate]; }
+        public CardStatus Status { get => (CardStatus)this[CardFieldMeta.Status]; }
+        public bool IsFlagged { get => (bool)this[CardFieldMeta.Flagged]; }
         public string EpicKey { get => (string)this[CardFieldMeta.EpicId]; }
         public int? SprintId { get => (int?)this[CardFieldMeta.Sprint]; }
         public string Rank { get => (string)this[CardFieldMeta.Rank]; }
+        public User Assignee { get => (User)this[CardFieldMeta.Assignee]; }
+        public User Reporter { get => (User)this[CardFieldMeta.Reporter]; }
+        public User Creator { get => (User)this[CardFieldMeta.Creator]; }
         public IEnumerable<string> Labels { get => (IEnumerable<string>)this[CardFieldMeta.Labels]; }
 
         #endregion
 
-        public IList<HistoryItem> History { get;  set; }
+        public IList<HistoryItem> History { get; set; }
 
         public class HistoryItem
         {
