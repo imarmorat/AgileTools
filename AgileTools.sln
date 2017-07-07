@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AgileTools.Client", "AgileT
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AgileTools.Sandbox", "AgileTools.Sandbox\AgileTools.Sandbox.csproj", "{FFA83733-2709-4EB1-A3A8-2AB5B42B8DF4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AgileTools.Core.Tests", "AgileTools.Core.Tests\AgileTools.Core.Tests.csproj", "{51CF3F8F-7728-496A-B486-B05C448C11D1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{FFA83733-2709-4EB1-A3A8-2AB5B42B8DF4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FFA83733-2709-4EB1-A3A8-2AB5B42B8DF4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FFA83733-2709-4EB1-A3A8-2AB5B42B8DF4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{51CF3F8F-7728-496A-B486-B05C448C11D1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{51CF3F8F-7728-496A-B486-B05C448C11D1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{51CF3F8F-7728-496A-B486-B05C448C11D1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{51CF3F8F-7728-496A-B486-B05C448C11D1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

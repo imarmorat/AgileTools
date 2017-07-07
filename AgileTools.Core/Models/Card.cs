@@ -113,6 +113,38 @@ namespace AgileTools.Core.Models
             }
         }
 
+        /// <summary>
+        /// Get a field value from a card as it was at a specific date
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="card"></param>
+        /// <param name="field"></param>
+        /// <param name="atDate"></param>
+        /// <returns></returns>
+        public T GetFieldAtDate<T>(CardFieldMeta field, DateTime atDate)
+        {
+            if (atDate < this.CreationDate)
+                return default(T);
+
+            var lastChangesOnFieldPriorDate = this.History
+                .Where(h => h.Field == field && h.On <= atDate)
+                .OrderByDescending(h => h.On)
+                .FirstOrDefault();
+
+            var firstChangesMadeAfterDate = this.History
+                .Where(h => h.Field == field && h.On > atDate)
+                .OrderBy(h => h.On)
+                .FirstOrDefault();
+
+            if (lastChangesOnFieldPriorDate != null)
+                return lastChangesOnFieldPriorDate.To.ChangeTo<T>();
+
+            if (firstChangesMadeAfterDate != null)
+                return firstChangesMadeAfterDate.From.ChangeTo<T>();
+
+            return this[field].ChangeTo<T>();
+        }
+
         public override string ToString()
         {
             return $"{Id}/{Status} - {Title}";

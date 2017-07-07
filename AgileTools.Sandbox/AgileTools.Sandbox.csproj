@@ -54,15 +54,15 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\JiraTools.Analysers\AgileTools.Analysers.csproj">
+    <ProjectReference Include="..\AgileTools.Analysers\AgileTools.Analysers.csproj">
       <Project>{9283e759-979b-4e1a-bd6a-134bab3fbc88}</Project>
       <Name>AgileTools.Analysers</Name>
     </ProjectReference>
-    <ProjectReference Include="..\JiraTools.Client\AgileTools.Client.csproj">
+    <ProjectReference Include="..\AgileTools.Client\AgileTools.Client.csproj">
       <Project>{96f1e844-7cad-464d-aa01-880a30eddcf8}</Project>
       <Name>AgileTools.Client</Name>
     </ProjectReference>
-    <ProjectReference Include="..\JiraTools.Core\AgileTools.Core.csproj">
+    <ProjectReference Include="..\AgileTools.Core\AgileTools.Core.csproj">
       <Project>{d0222e65-2a1f-4aa6-9d29-2876fc6a163e}</Project>
       <Name>AgileTools.Core</Name>
     </ProjectReference>

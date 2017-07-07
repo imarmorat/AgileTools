@@ -59,7 +59,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\JiraTools.Core\AgileTools.Core.csproj">
+    <ProjectReference Include="..\AgileTools.Core\AgileTools.Core.csproj">
       <Project>{d0222e65-2a1f-4aa6-9d29-2876fc6a163e}</Project>
       <Name>AgileTools.Core</Name>
     </ProjectReference>

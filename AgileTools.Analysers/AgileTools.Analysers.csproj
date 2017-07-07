@@ -49,7 +49,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\JiraTools.Core\AgileTools.Core.csproj">
+    <ProjectReference Include="..\AgileTools.Core\AgileTools.Core.csproj">
       <Project>{D0222E65-2A1F-4AA6-9D29-2876FC6A163E}</Project>
       <Name>AgileTools.Core</Name>
     </ProjectReference>

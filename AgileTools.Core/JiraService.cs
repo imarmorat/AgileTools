@@ -46,34 +46,5 @@ namespace AgileTools.Core
         {
             return _jiraClient.GetTickets(query);
         }
-
-        /// <summary>
-        /// Get a field value from a card as it was at a specific date
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="card"></param>
-        /// <param name="field"></param>
-        /// <param name="atDate"></param>
-        /// <returns></returns>
-        public T GetFieldAtDate<T>(Card card, CardFieldMeta field, DateTime atDate)
-        {
-            var lastChangesOnFieldPriorDate = card.History
-                .Where(h => h.Field == field && h.On <= atDate)
-                .OrderByDescending(h => h.On)
-                .FirstOrDefault();
-
-            var firstChangesMadeAfterDate = card.History
-                .Where(h => h.Field == field && h.On > atDate)
-                .OrderBy(h => h.On)
-                .FirstOrDefault();
-
-            if (lastChangesOnFieldPriorDate != null)
-                return lastChangesOnFieldPriorDate.To.ChangeTo<T>();
-
-            if (firstChangesMadeAfterDate != null)
-                return firstChangesMadeAfterDate.From.ChangeTo<T>();
-
-            return card[field].ChangeTo<T>();
-        }
     }
 }

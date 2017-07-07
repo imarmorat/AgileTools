@@ -10,6 +10,7 @@ namespace AgileTools.Core
     {
         public static T ChangeTo<T>(this object obj)
         {
+            // todo: handle generic
             return (T)obj;
         }
     }
