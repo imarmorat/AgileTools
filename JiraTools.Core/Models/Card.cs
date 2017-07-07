@@ -5,6 +5,9 @@ using System.Text;
 
 namespace JiraTools.Core.Models
 {
+    /// <summary>
+    /// Mostly used for card history analysis, this lets access well known fields on a card
+    /// </summary>
     public enum CardFieldMeta
     {
          Id ,
@@ -16,7 +19,6 @@ namespace JiraTools.Core.Models
          ResolutionDate ,
          Created ,
          DueDate ,
-
          Flagged ,
          Sprint ,
          EpicId ,
@@ -30,21 +32,30 @@ namespace JiraTools.Core.Models
     /// </summary>
     public class Card
     {
-        public string Id { get; set; }
+        #region Private
+
+        private Dictionary<CardFieldMeta, object> _fieldMapping;
+
+        #endregion
+
+        #region Card data fields
+
+        public string Id { get; protected set; }
         public string Title { get => (string)this[CardFieldMeta.Title];  }
         public string Description { get => (string) this[CardFieldMeta.Description ]; }
-        public DateTime CreationDate; // { get => (DateTime) this[ JiraDefaultFields.Created ]; set => this[ JiraDefaultFields.Created] = value; }
-        public DateTime? ClosureDate; // { get => (DateTime?) this[ JiraDefaultFields.ResolutionDate ]; set => this[ JiraDefaultFields.ResolutionDate] = value; }
-        public DateTime? DueDate; // { get => (DateTime?) this[ JiraDefaultFields.DueDate ]; set => this[ JiraDefaultFields.DueDate] = value; }
-
+        public DateTime CreationDate { get => (DateTime) this[CardFieldMeta.Created ];  }
+        public DateTime? ClosureDate { get => (DateTime?) this[CardFieldMeta.ResolutionDate ]; }
+        public DateTime? DueDate { get => (DateTime?) this[CardFieldMeta.DueDate ];  }
+        public string Status { get => (string)this[CardFieldMeta.Status]; }
         public bool IsFlagged { get => (bool) this[CardFieldMeta.Flagged]; }
         public string EpicKey { get => (string)this[CardFieldMeta.EpicId]; }
         public int? SprintId { get => (int?)this[CardFieldMeta.Sprint]; }
         public string Rank { get => (string)this[CardFieldMeta.Rank]; }
+        public IEnumerable<string> Labels { get => (IEnumerable<string>)this[CardFieldMeta.Labels]; }
+
+        #endregion
 
         public IList<HistoryItem> History { get;  set; }
-        public IEnumerable<string> Labels { get => (IEnumerable<string>)this[CardFieldMeta.Labels]; }
-        public IList<string> FixVersions { get; set; }
 
         public class HistoryItem
         {
@@ -69,24 +80,23 @@ namespace JiraTools.Core.Models
             public DateTime? LastUpdatedOn { get; set; }
         }
 
-        private Dictionary<CardFieldMeta, object> _fieldMapping;
-
         /// <summary>
         /// Constructor
         /// </summary>
-        /// <param name="fieldsMeta"></param>
-        public Card(string id)
+        /// <param name="id"></param>
+        /// <param name="data"></param>
+        public Card(string id, Dictionary<CardFieldMeta, object> data)
         {
             Id = id;
             History = new List<HistoryItem>();
-            FixVersions = new List<string>();
-        }
-
-        public Card(string id, Dictionary<CardFieldMeta, object> data) : this(id)
-        {
             _fieldMapping = new Dictionary<CardFieldMeta, object>(data);
         }
 
+        /// <summary>
+        /// Retrieve a field value 
+        /// </summary>
+        /// <param name="fieldName"></param>
+        /// <returns></returns>
         public object this[CardFieldMeta fieldName]
         {
             get
@@ -105,7 +115,7 @@ namespace JiraTools.Core.Models
 
         public override string ToString()
         {
-            return $"{Id} - {Title}";
+            return $"{Id}/{Status} - {Title}";
         }
     }
 }

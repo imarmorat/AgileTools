@@ -2,6 +2,10 @@
 
 namespace JiraTools.Core.Models
 {
+    /// <summary>
+    /// Represent a JIRA field. Not used outside the concept of Jira Client as Card is dealing with it abstractively
+    /// TODO: consider moving to Client project
+    /// </summary>
     public class JiraField
     {
         public string Id { get; protected set; }

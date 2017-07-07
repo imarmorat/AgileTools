@@ -18,10 +18,6 @@ namespace JiraTools.Core
 
         public IEnumerable<CardStatus> Statuses { get; protected set; }
 
-        //public IEnumerable<JiraField> Fields { get; protected set; }
-
-        //public IEnumerable<JiraField> CommonFields { get; protected set; }
-
         #endregion
 
         /// <summary>
@@ -39,30 +35,7 @@ namespace JiraTools.Core
         public void Init()
         {
             Statuses = _jiraClient.GetStatuses().ToList();
-            //Fields = _jiraClient.GetFields().ToList();
         }
-
-        ///// <summary>
-        ///// Get a field based on its name. Case insensitive
-        ///// </summary>
-        ///// <param name="fieldName"></param>
-        ///// <returns></returns>
-        //public JiraField GetFieldByName(string fieldName)
-        //{
-        //    var match = Fields.Where(field => string.Compare(field.Name, fieldName, true) == 0).FirstOrDefault();
-        //    return match;
-        //}
-
-        ///// <summary>
-        ///// Get a field based on its name. Case insensitive
-        ///// </summary>
-        ///// <param name="fieldName"></param>
-        ///// <returns></returns>
-        //public JiraField GetFieldById(string fieldId)
-        //{
-        //    var match = Fields.Where(field => string.Compare(field.Id, fieldId, true) == 0).FirstOrDefault();
-        //    return match;
-        //}
 
         /// <summary>
         /// Retrieve tickets from jira database
@@ -71,13 +44,18 @@ namespace JiraTools.Core
         /// <returns></returns>
         public IEnumerable<Card> GetTickets(string query)
         {
-            var totalTickets = 0;
-            var totalLoaded = 0;
-
             return _jiraClient.GetTickets(query);
         }
 
-        public bool GetFieldAtDate<T>(Card t, CardStatus s, DateTime to)
+        /// <summary>
+        /// Get a field value from a card as it was at a specific date
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="card"></param>
+        /// <param name="field"></param>
+        /// <param name="atDate"></param>
+        /// <returns></returns>
+        public T GetFieldAtDate<T>(Card card, CardFieldMeta field, DateTime atDate)
         {
             throw new NotImplementedException();
         }

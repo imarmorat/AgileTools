@@ -53,11 +53,8 @@
     <Compile Include="ListExtension.cs" />
     <Compile Include="Models\CardStatus.cs" />
     <Compile Include="Models\DefaultModelConverter.cs" />
-    <Compile Include="Models\DynamicReflection.cs" />
     <Compile Include="Models\IModelConverter.cs" />
-    <Compile Include="Models\JiraCommonFields.cs" />
     <Compile Include="Models\JiraField.cs" />
-    <Compile Include="Models\JiraStatusCategory.cs" />
     <Compile Include="Models\Card.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
