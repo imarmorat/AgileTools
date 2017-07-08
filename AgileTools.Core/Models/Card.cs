@@ -54,7 +54,7 @@ namespace AgileTools.Core.Models
         public CardStatus Status { get => (CardStatus)this[CardFieldMeta.Status]; }
         public bool IsFlagged { get => (bool)this[CardFieldMeta.Flagged]; }
         public string EpicKey { get => (string)this[CardFieldMeta.EpicId]; }
-        public int? SprintId { get => (int?)this[CardFieldMeta.Sprint]; }
+        public IEnumerable<Sprint> Sprint { get => (IEnumerable<Sprint>)this[CardFieldMeta.Sprint]; }
         public string Rank { get => (string)this[CardFieldMeta.Rank]; }
         public User Assignee { get => (User)this[CardFieldMeta.Assignee]; }
         public User Reporter { get => (User)this[CardFieldMeta.Reporter]; }

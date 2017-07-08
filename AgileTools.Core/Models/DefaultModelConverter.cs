@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using static AgileTools.Core.Models.Card;
 
@@ -47,7 +48,7 @@ namespace AgileTools.Core.Models
                 new Tuple<string, CardFieldMeta, Func<dynamic, object>>("Resolved", CardFieldMeta.ResolutionDate, o=> (DateTime?) o),
                 new Tuple<string, CardFieldMeta, Func<dynamic, object>>("Due Date", CardFieldMeta.DueDate, o=> (DateTime?) o),
                 new Tuple<string, CardFieldMeta, Func<dynamic, object>>("Story Points", CardFieldMeta.Points, o=> (int?) o),
-                new Tuple<string, CardFieldMeta, Func<dynamic, object>>("Sprint", CardFieldMeta.Sprint, o=> (int?) null),
+                new Tuple<string, CardFieldMeta, Func<dynamic, object>>("Sprint", CardFieldMeta.Sprint, o=> ExtractSprintDetailsFromString(o)),
                 new Tuple<string, CardFieldMeta, Func<dynamic, object>>("Flagged", CardFieldMeta.Flagged, o=> o != null),
                 new Tuple<string, CardFieldMeta, Func<dynamic, object>>("Resolution", CardFieldMeta.Resolution, o=> o != null ? (string) o.name : null),
                 new Tuple<string, CardFieldMeta, Func<dynamic, object>>("Status", CardFieldMeta.Status, o=> ConvertStatus(o) ),
@@ -58,6 +59,32 @@ namespace AgileTools.Core.Models
                 new Tuple<string, CardFieldMeta, Func<dynamic, object>>("Reporter", CardFieldMeta.Reporter, o=> ConvertUser(o) ),
                 new Tuple<string, CardFieldMeta, Func<dynamic, object>>("Creator", CardFieldMeta.Creator, o=> ConvertUser(o) ),
             };
+        }
+
+        private static IEnumerable<Sprint> ExtractSprintDetailsFromString(object data)
+        {
+            var list = new List<Sprint>();
+            if (!(data is JArray sprints))  return list;
+
+            foreach (var sprint in sprints)
+            {
+                var sprintInfo = sprint.Value<string>();
+                var regEx = Regex.Match(sprintInfo, @"\[id=(\d+),rapidViewId=(.+),state=(.+),name=(.+),startDate=(.+),endDate=(.+),completeDate=(.+),");
+
+                if (!regEx.Success)
+                    continue;
+
+                list.Add( new Sprint
+                {
+                    Id = regEx.Groups[1].Value,
+                    BoardId = regEx.Groups[2].Value,
+                    Name = regEx.Groups[4].Value,
+                    StartDate = DateTime.Parse(regEx.Groups[5].Value),
+                    EndDate = regEx.Groups[6].Value == "<null>" ? (DateTime?)null : DateTime.Parse(regEx.Groups[6].Value),
+                    CompletionDate = regEx.Groups[7].Value == "<null>" ? (DateTime?)null : DateTime.Parse(regEx.Groups[7].Value),
+                });
+            }
+            return list;
         }
 
         public JiraField ConvertField(dynamic field)
