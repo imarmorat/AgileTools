@@ -1,5 +1,7 @@
 ﻿using AgileTools.Core;
 using AgileTools.Core.Models;
+using log4net;
+using log4net.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,6 +14,7 @@ namespace AgileTools.Analysers
     {
         #region Private
 
+        private ILog _logger = LogManager.GetLogger(typeof(CumulativeFlowAnalyser));
         private IEnumerable<Card> _cards;
         private DateTime _dateFrom;
         private DateTime _dateTo;
@@ -42,7 +45,9 @@ namespace AgileTools.Analysers
 
         public CumulativeFlowResult Analyse()
         {
-            var output = new CumulativeFlowResult() { From = _dateFrom.Date, To = _dateTo.Date };
+            _logger.Info($"Starting cumulative flow analysis on period from {_dateFrom.Date} to {_dateTo.Date}");
+
+            var output = new CumulativeFlowResult() { From = _dateFrom.Date, To = _dateTo.Date, Buckets = new List<CumulativeFlowResult.Bucket>() };
             var currDate = _dateFrom.Date;
             while(currDate <= _dateTo.Date)
             {
@@ -50,12 +55,13 @@ namespace AgileTools.Analysers
                 {
                     From = currDate,
                     To = currDate + _bucketSize,
+                    FlowData = new Dictionary<CardStatus, double>()
                 };
 
                 _jiraService.Statuses.ForEach(s =>
                 {
                     var totalPoints = _cards
-                        .Where(card => card.GetFieldAtDate<string>(CardFieldMeta.Status, bucket.To) == s.Name)
+                        .Where(card => card.GetFieldAtDate<CardStatus>(CardFieldMeta.Status, bucket.To) == s)
                         .Sum( card => card.GetFieldAtDate<double>(CardFieldMeta.Points, bucket.To));
                     bucket.FlowData.Add(s, totalPoints);
                 });
@@ -63,6 +69,8 @@ namespace AgileTools.Analysers
                 output.Buckets.Add(bucket);
                 currDate += _bucketSize;
             }
+
+            _logger.Info($"Cumulative flow analysis completed");
 
             return output;
         }

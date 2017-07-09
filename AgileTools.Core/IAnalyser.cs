@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace AgileTools.Core
 {
-    public interface IAnalyser<TResult>
+    public interface IAnalyser<out TResult>
     {
         TResult Analyse();
     }

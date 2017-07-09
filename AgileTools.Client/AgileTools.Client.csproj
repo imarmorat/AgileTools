@@ -51,6 +51,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AuditingJiraClient.cs" />
+    <Compile Include="DefaultModelConverter.cs" />
     <Compile Include="JiraClient.cs" />
     <Compile Include="JsonDeserializer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

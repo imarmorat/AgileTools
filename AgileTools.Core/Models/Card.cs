@@ -71,8 +71,8 @@ namespace AgileTools.Core.Models
             public object From { get; set; }
             public object To { get; set; }
             public DateTime On { get; set; }
-            public string FromStr { get; internal set; }
-            public string ToStr { get; internal set; }
+            public string FromStr { get; set; }
+            public string ToStr { get; set; }
             // public string By {get;set;}
 
             public override string ToString()

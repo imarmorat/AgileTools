@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using AgileTools.Analysers;
 
 namespace AgileTools.Sandbox
 {
@@ -18,6 +19,15 @@ namespace AgileTools.Sandbox
             jiraService.Init();
 
             var tickets = jiraService.GetTickets("project = \"STP\"").ToList();
+
+            var analysers = new List<IAnalyser<object>>
+            {
+                new CumulativeFlowAnalyser(jiraService, tickets)
+            };
+
+            analysers.ForEach(a => a.Analyse());
+
+            Console.ReadLine();
         }
     }
 }

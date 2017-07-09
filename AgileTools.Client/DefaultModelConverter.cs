@@ -8,7 +8,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using static AgileTools.Core.Models.Card;
 
-namespace AgileTools.Core.Models
+namespace AgileTools.Client
 {
     /// <summary>
     /// This model converter is tested for JIRA 7.3.0 and below (havent tested below 7.0)
