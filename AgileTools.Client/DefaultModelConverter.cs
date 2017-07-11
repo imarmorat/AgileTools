@@ -1,4 +1,6 @@
-﻿using AgileTools.Core.Models;
+﻿using AgileTools.Core;
+using AgileTools.Core.Models;
+using log4net;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -17,7 +19,8 @@ namespace AgileTools.Client
     {
         #region Protected
 
-        protected List<Tuple<string, CardFieldMeta, Func<dynamic, object>>> _jiraFieldMapping;
+        protected static ILog _logger = LogManager.GetLogger(typeof(DefaultModelConverter));
+        protected List<Tuple<string, CardFieldMeta, Func<dynamic, object>, Func<string, string, IJiraClient, object>>> _jiraFieldMapping;
         protected Dictionary<string, StatusCategory> _jiraStatusCategoryMapping = new Dictionary<string, StatusCategory>
         {
             { "new", StatusCategory.New },
@@ -39,52 +42,123 @@ namespace AgileTools.Client
         /// </summary>
         public DefaultModelConverter()
         {
-            _jiraFieldMapping = new List<Tuple<string, CardFieldMeta, Func<dynamic, object>>>
+            _jiraFieldMapping = new List<Tuple<string, CardFieldMeta, Func<dynamic, object>, Func<string, string, IJiraClient, object>>>
          {
-                new Tuple<string, CardFieldMeta, Func<dynamic, object>>("Summary", CardFieldMeta.Title, o=> (string) o),
-                new Tuple<string, CardFieldMeta, Func<dynamic, object>>("Issue Type", CardFieldMeta.Type, o=> IdentifyCardType(o)),
-                new Tuple<string, CardFieldMeta, Func<dynamic, object>>("Description", CardFieldMeta.Description, o=> (string) o),
-                new Tuple<string, CardFieldMeta, Func<dynamic, object>>("Created", CardFieldMeta.Created, o=> (DateTime) o),
-                new Tuple<string, CardFieldMeta, Func<dynamic, object>>("Resolved", CardFieldMeta.ResolutionDate, o=> (DateTime?) o),
-                new Tuple<string, CardFieldMeta, Func<dynamic, object>>("Due Date", CardFieldMeta.DueDate, o=> (DateTime?) o),
-                new Tuple<string, CardFieldMeta, Func<dynamic, object>>("Story Points", CardFieldMeta.Points, o=> (int?) o),
-                new Tuple<string, CardFieldMeta, Func<dynamic, object>>("Sprint", CardFieldMeta.Sprint, o=> ExtractSprintDetailsFromString(o)),
-                new Tuple<string, CardFieldMeta, Func<dynamic, object>>("Flagged", CardFieldMeta.Flagged, o=> o != null),
-                new Tuple<string, CardFieldMeta, Func<dynamic, object>>("Resolution", CardFieldMeta.Resolution, o=> o != null ? (string) o.name : null),
-                new Tuple<string, CardFieldMeta, Func<dynamic, object>>("Status", CardFieldMeta.Status, o=> ConvertStatus(o) ),
-                new Tuple<string, CardFieldMeta, Func<dynamic, object>>("Epic Link", CardFieldMeta.EpicId, o=> (string) o ),
-                new Tuple<string, CardFieldMeta, Func<dynamic, object>>("Rank", CardFieldMeta.Rank, o=> (string) o ),
-                new Tuple<string, CardFieldMeta, Func<dynamic, object>>("Labels", CardFieldMeta.Labels, o=> ExtractList<string>(o) ),
-                new Tuple<string, CardFieldMeta, Func<dynamic, object>>("Assignee", CardFieldMeta.Assignee, o=> ConvertUser(o) ),
-                new Tuple<string, CardFieldMeta, Func<dynamic, object>>("Reporter", CardFieldMeta.Reporter, o=> ConvertUser(o) ),
-                new Tuple<string, CardFieldMeta, Func<dynamic, object>>("Creator", CardFieldMeta.Creator, o=> ConvertUser(o) ),
+                new Tuple<string, CardFieldMeta, Func<dynamic, object>, Func<string, string, IJiraClient, object>>(
+                    "Summary",
+                    CardFieldMeta.Title,
+                    o=> (string) o,
+                    (str1, str2,client) => str2
+                    ),
+                new Tuple<string, CardFieldMeta, Func<dynamic, object>, Func<string, string, IJiraClient, object>>(
+                    "Issue Type",
+                    CardFieldMeta.Type,
+                    o=> IdentifyCardType((string) o.name),
+                    (str1, str2, client) => IdentifyCardType(str2)
+                    ),
+                new Tuple<string, CardFieldMeta, Func<dynamic, object>, Func<string, string, IJiraClient, object>>(
+                    "Description",
+                    CardFieldMeta.Description,
+                    o=> (string) o,
+                    (str1, str2, client) => str2
+                    ),
+                new Tuple<string, CardFieldMeta, Func<dynamic, object>, Func<string, string, IJiraClient, object>>(
+                    "Created",
+                    CardFieldMeta.Created,
+                    o=> (DateTime) o,
+                    (str1, str2, client) => DateTime.Parse(str2)
+                    ),
+                new Tuple<string, CardFieldMeta, Func<dynamic, object>, Func<string, string, IJiraClient, object>>(
+                    "Resolved",
+                    CardFieldMeta.ResolutionDate,
+                    o=> (DateTime?) o,
+                    (str1, str2, client) => string.IsNullOrEmpty(str2) ? (DateTime?) null : DateTime.Parse(str2)
+                    ),
+                new Tuple<string, CardFieldMeta, Func<dynamic, object>, Func<string, string, IJiraClient, object>>(
+                    "Due Date",
+                    CardFieldMeta.DueDate,
+                    o=> (DateTime?) o,
+                    (str1, str2, client) => string.IsNullOrEmpty(str2) ? (DateTime?) null : DateTime.Parse(str2)
+                    ),
+                new Tuple<string, CardFieldMeta, Func<dynamic, object>, Func<string, string, IJiraClient, object>>(
+                    "Story Points",
+                    CardFieldMeta.Points,
+                    o=> (int?) o,
+                    (str1, str2, client) => string.IsNullOrEmpty(str2) ? (double?) null : Double.Parse(str2)
+                    ),
+                new Tuple<string, CardFieldMeta, Func<dynamic, object>, Func<string, string, IJiraClient, object>>(
+                    "Sprint",
+                    CardFieldMeta.Sprint,
+                    o=> ExtractSprintDetailsFromString(o),
+                    (str1, str2, client) => string.IsNullOrEmpty(str1) ? (Sprint) null : (Sprint) client.GetSprint((string)str1) // str1 = sprintId, str2 = sprintNames
+                    ),
+                new Tuple<string, CardFieldMeta, Func<dynamic, object>, Func<string, string, IJiraClient, object>>(
+                    "Flagged",
+                    CardFieldMeta.Flagged,
+                    o=> o != null,
+                    (str1, str2, client) => str2 == "Impediment" // throw new NotImplementedException()
+                    ),
+                new Tuple<string, CardFieldMeta, Func<dynamic, object>, Func<string, string, IJiraClient, object>>(
+                    "Resolution",
+                    CardFieldMeta.Resolution,
+                    o=> o != null ? (string) o.name : null,
+                    (str1, str2, client) => str2
+                    ),
+                new Tuple<string, CardFieldMeta, Func<dynamic, object>, Func<string, string, IJiraClient, object>>(
+                    "Status",
+                    CardFieldMeta.Status,
+                    o=> ConvertStatus(o),
+                    (str1, str2, client) =>  string.IsNullOrEmpty(str1) ? (CardStatus) null : client.GetStatus( (string)str1 )// str1 = statusId, str2 = statusname
+                    ),
+                new Tuple<string, CardFieldMeta, Func<dynamic, object>, Func< string, string, IJiraClient, object>>(
+                    "Epic Link",
+                    CardFieldMeta.EpicId,
+                    o=> (string) o,
+                    (str1, str2, client) => str2
+                    ),
+                new Tuple<string, CardFieldMeta, Func<dynamic, object>, Func<string, string, IJiraClient, object>>(
+                    "Rank",
+                    CardFieldMeta.Rank,
+                    o=> (string) o,
+                    (str1, str2, client) => str2
+                    ),
+                new Tuple<string, CardFieldMeta, Func<dynamic, object>, Func<string, string, IJiraClient, object>>(
+                    "Labels",
+                    CardFieldMeta.Labels,
+                    o=> ExtractList<string>(o),
+                    (str1, str2, client) => str2
+                    ),
+                new Tuple<string, CardFieldMeta, Func<dynamic, object>, Func<string, string, IJiraClient, object>>(
+                    "Assignee",
+                    CardFieldMeta.Assignee,
+                    o=> ConvertUser(o),
+                    (str1, str2, client) => string.IsNullOrEmpty(str1) ? (User) null : client.GetUser((string) str1)
+                    ),
+                new Tuple<string, CardFieldMeta, Func<dynamic, object>, Func<string, string, IJiraClient, object>>(
+                    "Reporter",
+                    CardFieldMeta.Reporter,
+                    o=> ConvertUser(o),
+                    (str1, str2, client) => string.IsNullOrEmpty(str1) ? (User) null : client.GetUser((string) str1)
+                    ),
+                new Tuple<string, CardFieldMeta, Func<dynamic, object>, Func<string, string, IJiraClient, object>>(
+                    "Creator",
+                    CardFieldMeta.Creator,
+                    o=> ConvertUser(o),
+                    (str1, str2, client) => string.IsNullOrEmpty(str1) ? (User) null : client.GetUser((string) str1)
+                    ),
             };
         }
 
-        private static IEnumerable<Sprint> ExtractSprintDetailsFromString(object data)
+        public Sprint ConvertSprint(dynamic sprint)
         {
-            var list = new List<Sprint>();
-            if (!(data is JArray sprints))  return list;
-
-            foreach (var sprint in sprints)
+            return new Sprint
             {
-                var sprintInfo = sprint.Value<string>();
-                var regEx = Regex.Match(sprintInfo, @"\[id=(\d+),rapidViewId=(.+),state=(.+),name=(.+),startDate=(.+),endDate=(.+),completeDate=(.+),");
-
-                if (!regEx.Success)
-                    continue;
-
-                list.Add( new Sprint
-                {
-                    Id = regEx.Groups[1].Value,
-                    BoardId = regEx.Groups[2].Value,
-                    Name = regEx.Groups[4].Value,
-                    StartDate = DateTime.Parse(regEx.Groups[5].Value),
-                    EndDate = regEx.Groups[6].Value == "<null>" ? (DateTime?)null : DateTime.Parse(regEx.Groups[6].Value),
-                    CompletionDate = regEx.Groups[7].Value == "<null>" ? (DateTime?)null : DateTime.Parse(regEx.Groups[7].Value),
-                });
-            }
-            return list;
+                Id = (string)sprint.id,
+                Name = (string)sprint.name,
+                StartDate = (DateTime?)sprint.startDate,
+                EndDate = (DateTime?)sprint.endDate,
+                BoardId = (string)sprint.originBoardId
+            };
         }
 
         public JiraField ConvertField(dynamic field)
@@ -108,7 +182,7 @@ namespace AgileTools.Client
                     StatusCategory.Unknown);
         }
 
-        public static User ConvertUser(dynamic user)
+        public User ConvertUser(dynamic user)
         {
             return user == null ? null :
                 new User
@@ -119,7 +193,7 @@ namespace AgileTools.Client
                 };
         }
 
-        public Card ConvertTicket(dynamic issue, IEnumerable<JiraField> fieldsMeta)
+        public Card ConvertTicket(dynamic issue, IEnumerable<JiraField> fieldsMeta, IJiraClient client)
         {
             var mapping = new Dictionary<CardFieldMeta, object>();
             _jiraFieldMapping.ForEach(jf =>
@@ -135,28 +209,42 @@ namespace AgileTools.Client
             {
                 foreach (var item in hist.items)
                 {
-                    var hi = new HistoryItem
-                    {
-                        // author
-                        On = (DateTime)hist.created,
-                        From = (string)item.from,
-                        FromStr = (string)item.fromString,
-                        To = (string)item.to,
-                        ToStr = (string)item.toString
-                    };
-
-                    var jiraFieldName = string.Empty;
+                    var match = (JiraField)null;
                     switch ((string)item.fieldtype)
                     {
                         case "custom":
-                            jiraFieldName = fieldsMeta.FirstOrDefault(f => f.Name == (string)item.field).Name;
+                            match = fieldsMeta.FirstOrDefault(f => f.Name == (string)item.field);
                             break;
                         case "jira":
-                            jiraFieldName = fieldsMeta.FirstOrDefault(f => f.Id == (string)item.field).Name;
+                            match = fieldsMeta.FirstOrDefault(f => f.Id == (string)item.field);
                             break;
-                        default: throw new Exception($"Unknown field type during history decomposition: {item.field}");
                     }
-                    hi.Field = _jiraFieldMapping.FirstOrDefault(t => t.Item1 == jiraFieldName).Item2;
+
+                    if (match == null)
+                    {
+                        // if the field is not found, this means we are not interesting in this
+                        _logger.Debug($"Field {(string) item.field} not a known field within by client !!, skipping.");
+                        continue; 
+                    }
+
+                    var jiraFieldName = match.Name;
+                    var fieldMapping = _jiraFieldMapping.FirstOrDefault(t => t.Item1 == jiraFieldName);
+                    if (fieldMapping == null)
+                    {
+                        // agian, if not found, this is not a field we are interest in
+                        _logger.Debug($"Field {jiraFieldName} not mapped, skipping.");
+                        continue;
+                    }
+
+                    var hi = new HistoryItem
+                    {
+                        By = client.GetUser((string) hist.author.key),
+                        Field = fieldMapping.Item2,
+                        On = (DateTime)hist.created,
+                        From = fieldMapping.Item4((string) item.from, (string) item.fromString, client),
+                        To = fieldMapping.Item4((string) item.to, (string) item.toString, client),
+                    };
+
                     card.History.Add(hi);
                 }
             }
@@ -164,14 +252,40 @@ namespace AgileTools.Client
             return card;
         }
 
-        private CardType IdentifyCardType(dynamic ct)
+        private CardType IdentifyCardType(string typeName)
         {
-            if (ct == null || !_jiraTicketTypeMapping.ContainsKey((string)ct.name))
+            if (!_jiraTicketTypeMapping.ContainsKey(typeName))
                 return CardType.Unknown;
 
-            return _jiraTicketTypeMapping[(string)ct.name];
+            return _jiraTicketTypeMapping[typeName];
         }
 
+        private static IEnumerable<Sprint> ExtractSprintDetailsFromString(object data)
+        {
+            var list = new List<Sprint>();
+            if (!(data is JArray sprints)) return list;
+
+            foreach (var sprint in sprints)
+            {
+                var sprintInfo = sprint.Value<string>();
+                var regEx = Regex.Match(sprintInfo, @"\[id=(\d+),rapidViewId=(.+),state=(.+),name=(.+),startDate=(.+),endDate=(.+),completeDate=(.+),");
+
+                if (!regEx.Success)
+                    continue;
+
+                list.Add(new Sprint
+                {
+                    Id = regEx.Groups[1].Value,
+                    BoardId = regEx.Groups[2].Value,
+                    Name = regEx.Groups[4].Value,
+                    StartDate = DateTime.Parse(regEx.Groups[5].Value),
+                    EndDate = regEx.Groups[6].Value == "<null>" ? (DateTime?)null : DateTime.Parse(regEx.Groups[6].Value),
+                    CompletionDate = regEx.Groups[7].Value == "<null>" ? (DateTime?)null : DateTime.Parse(regEx.Groups[7].Value),
+                });
+            }
+            return list;
+        }
+        
         #region Helpers
 
         /// <summary>

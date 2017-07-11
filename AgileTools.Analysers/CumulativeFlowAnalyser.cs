@@ -14,7 +14,7 @@ namespace AgileTools.Analysers
     {
         #region Private
 
-        private ILog _logger = LogManager.GetLogger(typeof(CumulativeFlowAnalyser));
+        private static readonly ILog _logger = LogManager.GetLogger(typeof(CumulativeFlowAnalyser));
         private IEnumerable<Card> _cards;
         private DateTime _dateFrom;
         private DateTime _dateTo;

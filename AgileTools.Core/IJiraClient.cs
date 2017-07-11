@@ -14,5 +14,8 @@ namespace AgileTools.Core
         IEnumerable<Card> GetTickets(string query);
 
         Card GetTicket(string ticket);
+        Sprint GetSprint(string str1);
+        CardStatus GetStatus(string str2);
+        User GetUser(string str1);
     }
 }
