@@ -17,22 +17,37 @@ namespace AgileTools.Sandbox
 
         static void Main(string[] args)
         {
-            var jiraClient = new JiraClient("http://10.0.75.1:8080", "admin", "123", new DefaultModelConverter());
+            var jiraClient = (ICardManagerClient) new JiraClient("http://10.0.75.1:8080", "admin", "123");
+            jiraClient = new CachedJiraClient(jiraClient);
+            jiraClient.ModelConverter = new DefaultModelConverter(jiraClient);
             var jiraService = new JiraService(jiraClient);
             jiraService.Init();
 
             _logger.Info("Start loading tickets");
-            var tickets = jiraService.GetTickets("project = \"STP\"").ToList();
-            _logger.Debug($"Found {tickets.Count} tickets");
+            var cards = jiraService.GetTickets("project = \"STP\"").ToList();
+            _logger.Debug($"Found {cards.Count} tickets");
 
             var analysers = new List<IAnalyser<object>>
             {
-                new CumulativeFlowAnalyser(jiraService, tickets)
+                new CumulativeFlowAnalyser(jiraService, cards),
+                new RuleCheckerAnalyser  ( 
+                    new List<RuleDefinitionBase> { new CardInProgressButNotAssignedRule() },
+                    cards
+                    ),
+                new VelocityAnalyser(cards, DateTime.Parse("2017-07-05"), DateTime.Now.AddDays(3), new TimeSpan(1,0,0,0))
             };
 
-            analysers.ForEach(a => a.Analyse());
+            analysers.ForEach(a =>
+            {
+                _logger.Info($"Starting [{a.Name}] analyser");
+                var result = a.Analyse();
+                AnalyserHelper.SaveAnalyserResult(a, result);
+            });
 
+            _logger.Info("All Done !!!");
             Console.ReadLine();
         }
+
+
     }
 }

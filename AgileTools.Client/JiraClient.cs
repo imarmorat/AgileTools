@@ -12,18 +12,27 @@ namespace AgileTools.Client
     /// <summary>
     /// TODO: cache the fields as for now using GetFields()
     /// </summary>
-    public class JiraClient : IJiraClient
+    public class JiraClient : ICardManagerClient
     {
+        #region Private
+
         private IRestClient _restClient;
         private string MainRestPrefix = "/rest/api/latest";
         private string AgileRestPrefix = "/rest/agile/latest";
         private IModelConverter _modelConverter;
+        
+        #endregion
+
+        public IModelConverter ModelConverter {
+            get => _modelConverter ?? throw new Exception("Model Converter not set");
+            set => _modelConverter = value ?? throw new ArgumentNullException("ModelConverter");
+        }
 
         /// <summary>
         /// Constructor
         /// </summary>
-        public JiraClient(string url, string user, string pwd, IModelConverter modelConverter) :
-            this(url, new HttpBasicAuthenticator(user,pwd), modelConverter)
+        public JiraClient(string url, string user, string pwd) :
+            this(url, new HttpBasicAuthenticator(user,pwd))
         {
         }
 
@@ -32,10 +41,9 @@ namespace AgileTools.Client
         /// </summary>
         /// <param name="url"></param>
         /// <param name="authenticator"></param>
-        public JiraClient(string url, IAuthenticator authenticator, IModelConverter modelConverter)
+        public JiraClient(string url, IAuthenticator authenticator)
         {
             if (string.IsNullOrEmpty(url)) throw new ArgumentNullException(nameof(url));
-            _modelConverter = modelConverter ?? throw new ArgumentNullException(nameof(modelConverter));
 
             _restClient = new RestClient(url)
             {
@@ -59,19 +67,19 @@ namespace AgileTools.Client
         public Sprint GetSprint(string sprintId)
         {
             var response = ExecuteRequest($"{AgileRestPrefix}/sprint/{sprintId}", Method.GET, HttpStatusCode.OK);
-            return _modelConverter.ConvertSprint(response.Data); 
+            return ModelConverter.ConvertSprint(response.Data); 
         }
 
         public CardStatus GetStatus(string statusId)
         {
             var response = ExecuteRequest($"{MainRestPrefix}/status/{statusId}", Method.GET, HttpStatusCode.OK);
-            return _modelConverter.ConvertStatus(response.Data);
+            return ModelConverter.ConvertStatus(response.Data);
         }
 
         public User GetUser(string userId)
         {
             var response = ExecuteRequest($"{MainRestPrefix}/user?key={userId}", Method.GET, HttpStatusCode.OK);
-            return _modelConverter.ConvertUser(response.Data);
+            return ModelConverter.ConvertUser(response.Data);
         }
 
         /// <summary>
@@ -82,14 +90,14 @@ namespace AgileTools.Client
         {
             var response = ExecuteRequest($"{MainRestPrefix}/field", Method.GET, HttpStatusCode.OK);
             foreach (var field in response.Data)
-                yield return _modelConverter.ConvertField(field);
+                yield return ModelConverter.ConvertField(field);
         }
 
         public IEnumerable<CardStatus> GetStatuses()
         {
             var response = ExecuteRequest($"{MainRestPrefix}/status", Method.GET, HttpStatusCode.OK);
             foreach (var status in response.Data)
-                yield return _modelConverter.ConvertStatus(status);
+                yield return ModelConverter.ConvertStatus(status);
         }
 
         public Card GetTicket(string ticketId)
@@ -98,7 +106,7 @@ namespace AgileTools.Client
                 $"{MainRestPrefix}/issue/{ticketId}&expand=changelog&fields=*all,comment",
                 Method.GET,
                 HttpStatusCode.OK);
-            return _modelConverter.ConvertTicket(response.Data, GetFields(), this);
+            return ModelConverter.ConvertCard(response.Data, GetFields());
         }
 
         public IEnumerable<Card> GetTickets(string query)
@@ -117,9 +125,11 @@ namespace AgileTools.Client
                 total = (int)response.Data.total;
 
                 foreach (var ticket in response.Data.issues)
-                    yield return _modelConverter.ConvertTicket(ticket, GetFields(), this); //ticket;
+                    yield return ModelConverter.ConvertCard(ticket, GetFields()); //ticket;
             } while (index < total);
         }
+
+        #region Protected methods
 
         protected virtual dynamic ExecuteRequest(string resource, Method method,  HttpStatusCode expectedCode, bool throwExceptionIfWrongReturnCode = true)
         {
@@ -137,6 +147,6 @@ namespace AgileTools.Client
                 throw new Exception($"REST response returned an unexpected code (is {response.StatusCode}, expecting {expectedCode}");
         }
 
-
+        #endregion
     }
 }

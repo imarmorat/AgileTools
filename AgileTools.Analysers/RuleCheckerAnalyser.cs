@@ -13,6 +13,8 @@ namespace AgileTools.Analysers
         private List<RuleDefinitionBase> _rules;
         private List<Card> _cards;
 
+        public string Name { get => "Rule Checker Analyser";  }
+
         public RuleCheckerAnalyser(IEnumerable<RuleDefinitionBase> rules, IEnumerable<Card> cards)
         {
             _rules = new List<RuleDefinitionBase>(rules);

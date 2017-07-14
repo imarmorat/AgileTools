@@ -3,8 +3,10 @@ using System.Collections.Generic;
 
 namespace AgileTools.Core
 {
-    public interface IJiraClient
+    public interface ICardManagerClient
     {
+        IModelConverter ModelConverter { get; set; }
+
         IEnumerable<CardStatus> GetStatuses();
 
         IEnumerable<JiraField> GetFields();
@@ -13,9 +15,12 @@ namespace AgileTools.Core
 
         IEnumerable<Card> GetTickets(string query);
 
-        Card GetTicket(string ticket);
-        Sprint GetSprint(string str1);
-        CardStatus GetStatus(string str2);
-        User GetUser(string str1);
+        Card GetTicket(string cardId);
+
+        Sprint GetSprint(string sprintId);
+
+        CardStatus GetStatus(string statusId);
+
+        User GetUser(string userId);
     }
 }

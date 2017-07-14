@@ -15,6 +15,11 @@ namespace AgileTools.Core.Models
             return $"{Name}";
         }
 
+        public override bool Equals(object obj)
+        {
+            return obj is CardType ct && ct.Name == this.Name;
+        }
+
         //
         // Basic card types
         public static CardType Story = new CardType { Name = "Story" };
@@ -23,6 +28,4 @@ namespace AgileTools.Core.Models
         public static CardType Feature = new CardType { Name = "Feature" };
         public static CardType Unknown = new CardType { Name = "Unknown" };
     }
-
-
 }

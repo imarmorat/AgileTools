@@ -19,6 +19,8 @@ namespace AgileTools.Analysers
 
         #endregion
 
+        public string Name { get => "Release Analyser"; }
+
         public class BucketResult
         {
             public DateTime StartDate { get; set; }
@@ -79,11 +81,38 @@ namespace AgileTools.Analysers
         /// <summary>
         /// Analysis of a particular timewindow
         /// </summary>
-        /// <param name="currDate"></param>
-        /// <param name="dateTime"></param>
+        /// <param name="fromDate"></param>
+        /// <param name="toDate"></param>
         /// <returns></returns>
-        private BucketResult AnalyseBucket(DateTime currDate, DateTime dateTime)
+        private BucketResult AnalyseBucket(DateTime fromDate, DateTime toDate)
         {
+            //
+            // Velocity metrics
+            // - Done during bucket
+            var velocity = VelocityAnalyser.GetPeriodVelocity(_cards, fromDate, toDate);
+
+            //
+            // Backlog metrics
+            // - Backlog size per card type: gives an idea to its constitution and evolution through time (e.g. bugs increasing sharply)
+            var backlogSizePerCardType =
+                from card in _cards
+                where card.GetFieldAtDate<CardResolution>(CardFieldMeta.Resolution, toDate) != CardResolution.Cancelled
+                group card by card.Type into ct
+                select new { CardType = ct.Key, Points = ct.Sum(c => c.Points) };
+
+            // - Backlog variation: cards added ?
+            // - Backlog variation: cards cancelled ?
+            // - Backlog variation: cards removed ? <-- not sure is possible
+            // - Backlog variation: points changed ?
+
+
+            //
+            // Trend analysis
+            // - Velocity required to be completed by specific date
+            // - Velocity min/max based on range of confidence
+            // - Projection of completion date using Velocity avg (or EMA for example)
+
+
             return null;
         }
     }

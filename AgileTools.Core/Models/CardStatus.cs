@@ -19,6 +19,14 @@ namespace AgileTools.Core.Models
             Category = category;
         }
 
+        public override bool Equals(object obj)
+        {
+            return 
+                obj is CardStatus cs &&
+                cs.Id == this.Id && 
+                cs.Name == this.Name;
+        }
+
         public override string ToString()
         {
             return $"{Name} ({Category})";

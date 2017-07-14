@@ -19,9 +19,11 @@ namespace AgileTools.Analysers
         private DateTime _dateFrom;
         private DateTime _dateTo;
         private TimeSpan _bucketSize;
-        private JiraService _jiraService; 
-        
+        private JiraService _jiraService;
+
         #endregion
+
+        public string Name { get => "Cumulative Flow Analyser";  }
 
         /// <summary>
         /// Constructor
@@ -36,8 +38,8 @@ namespace AgileTools.Analysers
             _jiraService = jiraService ?? throw new ArgumentNullException(nameof(jiraService));
             _cards = tickets;
             _dateFrom = from ?? _cards.Min(t => t.CreationDate);
-            _dateTo = to ?? _cards.Max(t => t.ClosureDate) ?? throw new ArgumentException("Cannot infer an end date", nameof(to));
-            _bucketSize = bucketSize ?? new TimeSpan(1, 0, 0);
+            _dateTo = to ?? _cards.Max(t => t.ClosureDate) ?? DateTime.Now;
+            _bucketSize = bucketSize ?? new TimeSpan(1, 0, 0, 0);
 
             if (_dateFrom > _dateTo)
                 throw new ArgumentException("Date from is after Date to");
@@ -45,7 +47,7 @@ namespace AgileTools.Analysers
 
         public CumulativeFlowResult Analyse()
         {
-            _logger.Info($"Starting cumulative flow analysis on period from {_dateFrom.Date} to {_dateTo.Date}");
+            _logger.Debug($"Starting cumulative flow analysis on period from {_dateFrom.Date} to {_dateTo.Date}");
 
             var output = new CumulativeFlowResult() { From = _dateFrom.Date, To = _dateTo.Date, Buckets = new List<CumulativeFlowResult.Bucket>() };
             var currDate = _dateFrom.Date;
@@ -60,17 +62,23 @@ namespace AgileTools.Analysers
 
                 _jiraService.Statuses.ForEach(s =>
                 {
+                    var cardsInSameStatus = _cards.Where(card => 
+                    s.Equals(card.GetFieldAtDate<CardStatus>(CardFieldMeta.Status, bucket.To)) && 
+                    (s.Category == StatusCategory.Final ? card.GetFieldAtDate<CardResolution>(CardFieldMeta.Resolution, bucket.To) == CardResolution.CompletedSuccessfully : true)
+                    ).ToList(); // if the status is a Final one, checking the card has not been rejected
+
                     var totalPoints = _cards
-                        .Where(card => card.GetFieldAtDate<CardStatus>(CardFieldMeta.Status, bucket.To) == s)
-                        .Sum( card => card.GetFieldAtDate<double>(CardFieldMeta.Points, bucket.To));
-                    bucket.FlowData.Add(s, totalPoints);
+                        .Where(card => s.Equals(card.GetFieldAtDate<CardStatus>(CardFieldMeta.Status, bucket.To)))
+                        .Sum( card => card.GetFieldAtDate<double?>(CardFieldMeta.Points, bucket.To));
+
+                    bucket.FlowData.Add(s, totalPoints ?? 0);
                 });
 
                 output.Buckets.Add(bucket);
                 currDate += _bucketSize;
             }
 
-            _logger.Info($"Cumulative flow analysis completed");
+            _logger.Debug($"Cumulative flow analysis completed");
 
             return output;
         }

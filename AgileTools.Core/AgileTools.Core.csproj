@@ -48,10 +48,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="IAnalyser.cs" />
-    <Compile Include="IJiraClient.cs" />
+    <Compile Include="ICardManagerClient.cs" />
     <Compile Include="JiraService.cs" />
     <Compile Include="ListExtension.cs" />
+    <Compile Include="Models\CardResolution.cs" />
     <Compile Include="Models\CardStatus.cs" />
+    <Compile Include="Models\CardTag.cs" />
     <Compile Include="Models\CardType.cs" />
     <Compile Include="Models\IModelConverter.cs" />
     <Compile Include="Models\JiraField.cs" />

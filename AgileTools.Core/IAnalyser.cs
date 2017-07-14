@@ -9,6 +9,7 @@ namespace AgileTools.Core
 {
     public interface IAnalyser<out TResult>
     {
+        string Name { get; }
         TResult Analyse();
     }
 }

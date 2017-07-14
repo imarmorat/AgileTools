@@ -10,7 +10,7 @@ namespace AgileTools.Core
     {
         #region Private 
 
-        private IJiraClient _jiraClient;
+        private ICardManagerClient _jiraClient;
 
         #endregion
 
@@ -24,7 +24,7 @@ namespace AgileTools.Core
         /// Constructor
         /// </summary>
         /// <param name="jiraClient"></param>
-        public JiraService(IJiraClient jiraClient)
+        public JiraService(ICardManagerClient jiraClient)
         {
             _jiraClient = jiraClient != null ? jiraClient : throw new ArgumentNullException(nameof(jiraClient));
         }

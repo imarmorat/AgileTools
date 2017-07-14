@@ -8,7 +8,7 @@ namespace AgileTools.Core
 {
     public static class TypeExtension
     {
-        public static T ChangeTo<T>(this IConvertible obj)
+        public static T ChangeTo<T>(this object obj)
         {
             // https://stackoverflow.com/questions/793714/how-can-i-fix-this-up-to-do-generic-conversion-to-nullablet
             Type t = typeof(T);

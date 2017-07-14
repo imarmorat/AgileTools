@@ -9,11 +9,18 @@ namespace AgileTools.Core.Models
         public string Name { get; set; }
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
-        public DateTime? CompletionDate { get; set; }
 
         public override string ToString()
         {
             return $"({Id}/{BoardId}) {Name}";
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is Sprint spr &&
+                spr.Id == this.Id &&
+                spr.Name == this.Name &&
+                spr.BoardId == this.BoardId;
         }
     }
 }

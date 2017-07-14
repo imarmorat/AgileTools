@@ -23,11 +23,11 @@ namespace AgileTools.Core.Models
         Sprint,
         EpicId,
         Assignee,
-        Labels,
         Creator,
         Reporter,
         Rank,
-        Type
+        Type,
+        Tags
     }
 
     /// <summary>
@@ -54,12 +54,14 @@ namespace AgileTools.Core.Models
         public CardStatus Status { get => (CardStatus)this[CardFieldMeta.Status]; }
         public bool IsFlagged { get => (bool)this[CardFieldMeta.Flagged]; }
         public string EpicKey { get => (string)this[CardFieldMeta.EpicId]; }
+        public double? Points { get => (double?)this[CardFieldMeta.Points]; }
         public IEnumerable<Sprint> Sprint { get => (IEnumerable<Sprint>)this[CardFieldMeta.Sprint]; }
         public string Rank { get => (string)this[CardFieldMeta.Rank]; }
         public User Assignee { get => (User)this[CardFieldMeta.Assignee]; }
         public User Reporter { get => (User)this[CardFieldMeta.Reporter]; }
         public User Creator { get => (User)this[CardFieldMeta.Creator]; }
-        public IEnumerable<string> Labels { get => (IEnumerable<string>)this[CardFieldMeta.Labels]; }
+        public IEnumerable<CardTag> Tags { get => (IEnumerable<CardTag>)this[CardFieldMeta.Tags]; }
+        public CardResolution Resolution { get => (CardResolution)this[CardFieldMeta.Resolution]; }
 
         #endregion
 

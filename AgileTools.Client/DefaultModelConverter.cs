@@ -20,127 +20,139 @@ namespace AgileTools.Client
         #region Protected
 
         protected static ILog _logger = LogManager.GetLogger(typeof(DefaultModelConverter));
-        protected List<Tuple<string, CardFieldMeta, Func<dynamic, object>, Func<string, string, IJiraClient, object>>> _jiraFieldMapping;
+        protected ICardManagerClient _client;
+        protected List<Tuple<string, CardFieldMeta, Func<dynamic, object>, Func<string, string, ICardManagerClient, object>>> _jiraFieldMapping;
         protected Dictionary<string, StatusCategory> _jiraStatusCategoryMapping = new Dictionary<string, StatusCategory>
         {
             { "new", StatusCategory.New },
             { "indeterminate", StatusCategory.InProgress },
             { "done", StatusCategory.Final }
         };
-        private Dictionary<string, CardType> _jiraTicketTypeMapping = new Dictionary<string, CardType>
+        protected Dictionary<string, CardType> _jiraTicketTypeMapping = new Dictionary<string, CardType>
         {
             { "Story", CardType.Story },
             { "Bug", CardType.Bug },
             { "Epic", CardType.Feature },
             { "Task", CardType.Enabler }
         };
+        protected Dictionary<string, CardResolution> _jiraResolutionMapping = new Dictionary<string, CardResolution>
+        {
+            { "Done", CardResolution.CompletedSuccessfully },
+            { "Won't Do", CardResolution.Cancelled },
+            { "Duplicate", CardResolution.Cancelled },
+            { "Cannot Reproduce", CardResolution.Cancelled }
+        };
+        protected static CardTagCategory LabelTagCategory = new CardTagCategory("label");
+        protected static CardTagCategory FixVersionTagCategory = new CardTagCategory("fixVersion");
+        protected static CardTagCategory ComponentTagCategory = new CardTagCategory("component");
 
         #endregion
 
         /// <summary>
         /// Constructor
         /// </summary>
-        public DefaultModelConverter()
+        public DefaultModelConverter(ICardManagerClient cmClient)
         {
-            _jiraFieldMapping = new List<Tuple<string, CardFieldMeta, Func<dynamic, object>, Func<string, string, IJiraClient, object>>>
+            _client = cmClient ?? throw new ArgumentNullException(nameof(cmClient));
+            _jiraFieldMapping = new List<Tuple<string, CardFieldMeta, Func<dynamic, object>, Func<string, string, ICardManagerClient, object>>>
          {
-                new Tuple<string, CardFieldMeta, Func<dynamic, object>, Func<string, string, IJiraClient, object>>(
+                new Tuple<string, CardFieldMeta, Func<dynamic, object>, Func<string, string, ICardManagerClient, object>>(
                     "Summary",
                     CardFieldMeta.Title,
                     o=> (string) o,
                     (str1, str2,client) => str2
                     ),
-                new Tuple<string, CardFieldMeta, Func<dynamic, object>, Func<string, string, IJiraClient, object>>(
+                new Tuple<string, CardFieldMeta, Func<dynamic, object>, Func<string, string, ICardManagerClient, object>>(
                     "Issue Type",
                     CardFieldMeta.Type,
                     o=> IdentifyCardType((string) o.name),
                     (str1, str2, client) => IdentifyCardType(str2)
                     ),
-                new Tuple<string, CardFieldMeta, Func<dynamic, object>, Func<string, string, IJiraClient, object>>(
+                new Tuple<string, CardFieldMeta, Func<dynamic, object>, Func<string, string, ICardManagerClient, object>>(
                     "Description",
                     CardFieldMeta.Description,
                     o=> (string) o,
                     (str1, str2, client) => str2
                     ),
-                new Tuple<string, CardFieldMeta, Func<dynamic, object>, Func<string, string, IJiraClient, object>>(
+                new Tuple<string, CardFieldMeta, Func<dynamic, object>, Func<string, string, ICardManagerClient, object>>(
                     "Created",
                     CardFieldMeta.Created,
                     o=> (DateTime) o,
                     (str1, str2, client) => DateTime.Parse(str2)
                     ),
-                new Tuple<string, CardFieldMeta, Func<dynamic, object>, Func<string, string, IJiraClient, object>>(
+                new Tuple<string, CardFieldMeta, Func<dynamic, object>, Func<string, string, ICardManagerClient, object>>(
                     "Resolved",
                     CardFieldMeta.ResolutionDate,
                     o=> (DateTime?) o,
                     (str1, str2, client) => string.IsNullOrEmpty(str2) ? (DateTime?) null : DateTime.Parse(str2)
                     ),
-                new Tuple<string, CardFieldMeta, Func<dynamic, object>, Func<string, string, IJiraClient, object>>(
+                new Tuple<string, CardFieldMeta, Func<dynamic, object>, Func<string, string, ICardManagerClient, object>>(
                     "Due Date",
                     CardFieldMeta.DueDate,
                     o=> (DateTime?) o,
                     (str1, str2, client) => string.IsNullOrEmpty(str2) ? (DateTime?) null : DateTime.Parse(str2)
                     ),
-                new Tuple<string, CardFieldMeta, Func<dynamic, object>, Func<string, string, IJiraClient, object>>(
+                new Tuple<string, CardFieldMeta, Func<dynamic, object>, Func<string, string, ICardManagerClient, object>>(
                     "Story Points",
                     CardFieldMeta.Points,
-                    o=> (int?) o,
+                    o=> (double?) o,
                     (str1, str2, client) => string.IsNullOrEmpty(str2) ? (double?) null : Double.Parse(str2)
                     ),
-                new Tuple<string, CardFieldMeta, Func<dynamic, object>, Func<string, string, IJiraClient, object>>(
+                new Tuple<string, CardFieldMeta, Func<dynamic, object>, Func<string, string, ICardManagerClient, object>>(
                     "Sprint",
                     CardFieldMeta.Sprint,
                     o=> ExtractSprintDetailsFromString(o),
                     (str1, str2, client) => string.IsNullOrEmpty(str1) ? (Sprint) null : (Sprint) client.GetSprint((string)str1) // str1 = sprintId, str2 = sprintNames
                     ),
-                new Tuple<string, CardFieldMeta, Func<dynamic, object>, Func<string, string, IJiraClient, object>>(
+                new Tuple<string, CardFieldMeta, Func<dynamic, object>, Func<string, string, ICardManagerClient, object>>(
                     "Flagged",
                     CardFieldMeta.Flagged,
                     o=> o != null,
                     (str1, str2, client) => str2 == "Impediment" // throw new NotImplementedException()
                     ),
-                new Tuple<string, CardFieldMeta, Func<dynamic, object>, Func<string, string, IJiraClient, object>>(
+                new Tuple<string, CardFieldMeta, Func<dynamic, object>, Func<string, string, ICardManagerClient, object>>(
                     "Resolution",
                     CardFieldMeta.Resolution,
-                    o=> o != null ? (string) o.name : null,
-                    (str1, str2, client) => str2
+                    o=> o != null ? IdentifyCardResolution((string) o.name) : null,
+                    (str1, str2, client) => IdentifyCardResolution(str2)
                     ),
-                new Tuple<string, CardFieldMeta, Func<dynamic, object>, Func<string, string, IJiraClient, object>>(
+                new Tuple<string, CardFieldMeta, Func<dynamic, object>, Func<string, string, ICardManagerClient, object>>(
                     "Status",
                     CardFieldMeta.Status,
                     o=> ConvertStatus(o),
                     (str1, str2, client) =>  string.IsNullOrEmpty(str1) ? (CardStatus) null : client.GetStatus( (string)str1 )// str1 = statusId, str2 = statusname
                     ),
-                new Tuple<string, CardFieldMeta, Func<dynamic, object>, Func< string, string, IJiraClient, object>>(
+                new Tuple<string, CardFieldMeta, Func<dynamic, object>, Func< string, string, ICardManagerClient, object>>(
                     "Epic Link",
                     CardFieldMeta.EpicId,
                     o=> (string) o,
                     (str1, str2, client) => str2
                     ),
-                new Tuple<string, CardFieldMeta, Func<dynamic, object>, Func<string, string, IJiraClient, object>>(
+                new Tuple<string, CardFieldMeta, Func<dynamic, object>, Func<string, string, ICardManagerClient, object>>(
                     "Rank",
                     CardFieldMeta.Rank,
                     o=> (string) o,
                     (str1, str2, client) => str2
                     ),
-                new Tuple<string, CardFieldMeta, Func<dynamic, object>, Func<string, string, IJiraClient, object>>(
+                new Tuple<string, CardFieldMeta, Func<dynamic, object>, Func<string, string, ICardManagerClient, object>>(
                     "Labels",
-                    CardFieldMeta.Labels,
-                    o=> ExtractList<string>(o),
+                    CardFieldMeta.Tags,
+                    o=> ExtractTagList<string>(o, LabelTagCategory),
                     (str1, str2, client) => str2
                     ),
-                new Tuple<string, CardFieldMeta, Func<dynamic, object>, Func<string, string, IJiraClient, object>>(
+                new Tuple<string, CardFieldMeta, Func<dynamic, object>, Func<string, string, ICardManagerClient, object>>(
                     "Assignee",
                     CardFieldMeta.Assignee,
                     o=> ConvertUser(o),
                     (str1, str2, client) => string.IsNullOrEmpty(str1) ? (User) null : client.GetUser((string) str1)
                     ),
-                new Tuple<string, CardFieldMeta, Func<dynamic, object>, Func<string, string, IJiraClient, object>>(
+                new Tuple<string, CardFieldMeta, Func<dynamic, object>, Func<string, string, ICardManagerClient, object>>(
                     "Reporter",
                     CardFieldMeta.Reporter,
                     o=> ConvertUser(o),
                     (str1, str2, client) => string.IsNullOrEmpty(str1) ? (User) null : client.GetUser((string) str1)
                     ),
-                new Tuple<string, CardFieldMeta, Func<dynamic, object>, Func<string, string, IJiraClient, object>>(
+                new Tuple<string, CardFieldMeta, Func<dynamic, object>, Func<string, string, ICardManagerClient, object>>(
                     "Creator",
                     CardFieldMeta.Creator,
                     o=> ConvertUser(o),
@@ -193,7 +205,7 @@ namespace AgileTools.Client
                 };
         }
 
-        public Card ConvertTicket(dynamic issue, IEnumerable<JiraField> fieldsMeta, IJiraClient client)
+        public Card ConvertCard(dynamic issue, IEnumerable<JiraField> fieldsMeta)
         {
             var mapping = new Dictionary<CardFieldMeta, object>();
             _jiraFieldMapping.ForEach(jf =>
@@ -204,7 +216,13 @@ namespace AgileTools.Client
             });
 
             var card = new Card((string)issue.key, mapping);
+            card.History = new List<HistoryItem>( ConvertCardHistory(issue, fieldsMeta) );
 
+            return card;
+        }
+
+        private IEnumerable<HistoryItem> ConvertCardHistory(dynamic issue, IEnumerable<JiraField> fieldsMeta)
+        {
             foreach (var hist in issue.changelog.histories)
             {
                 foreach (var item in hist.items)
@@ -223,8 +241,8 @@ namespace AgileTools.Client
                     if (match == null)
                     {
                         // if the field is not found, this means we are not interesting in this
-                        _logger.Debug($"Field {(string) item.field} not a known field within by client !!, skipping.");
-                        continue; 
+                        _logger.Debug($"Field {(string)item.field} not a known field within by client !!, skipping.");
+                        continue;
                     }
 
                     var jiraFieldName = match.Name;
@@ -238,26 +256,40 @@ namespace AgileTools.Client
 
                     var hi = new HistoryItem
                     {
-                        By = client.GetUser((string) hist.author.key),
+                        By = _client.GetUser((string)hist.author.key),
                         Field = fieldMapping.Item2,
                         On = (DateTime)hist.created,
-                        From = fieldMapping.Item4((string) item.from, (string) item.fromString, client),
-                        To = fieldMapping.Item4((string) item.to, (string) item.toString, client),
+                        From = fieldMapping.Item4((string)item.from, (string)item.fromString,_client),
+                        To = fieldMapping.Item4((string)item.to, (string)item.toString, _client),
                     };
 
-                    card.History.Add(hi);
+                    yield return hi;
                 }
             }
-
-            return card;
         }
+
+        #region Helpers
 
         private CardType IdentifyCardType(string typeName)
         {
+            if (string.IsNullOrEmpty(typeName))
+                return null;
+
             if (!_jiraTicketTypeMapping.ContainsKey(typeName))
                 return CardType.Unknown;
 
             return _jiraTicketTypeMapping[typeName];
+        }
+
+        private CardResolution IdentifyCardResolution(string resolutionName)
+        {
+            if (string.IsNullOrEmpty(resolutionName))
+                return null;
+
+            if (!_jiraResolutionMapping.ContainsKey(resolutionName))
+                return CardResolution.Unknown;
+
+            return _jiraResolutionMapping[resolutionName];
         }
 
         private static IEnumerable<Sprint> ExtractSprintDetailsFromString(object data)
@@ -280,14 +312,12 @@ namespace AgileTools.Client
                     Name = regEx.Groups[4].Value,
                     StartDate = DateTime.Parse(regEx.Groups[5].Value),
                     EndDate = regEx.Groups[6].Value == "<null>" ? (DateTime?)null : DateTime.Parse(regEx.Groups[6].Value),
-                    CompletionDate = regEx.Groups[7].Value == "<null>" ? (DateTime?)null : DateTime.Parse(regEx.Groups[7].Value),
+                    //CompletionDate = regEx.Groups[7].Value == "<null>" ? (DateTime?)null : DateTime.Parse(regEx.Groups[7].Value),
                 });
             }
             return list;
         }
         
-        #region Helpers
-
         /// <summary>
         /// Get a property by name on a dynamically resolved object
         /// </summary>
@@ -313,12 +343,12 @@ namespace AgileTools.Client
         /// <typeparam name="T"></typeparam>
         /// <param name="obj"></param>
         /// <returns></returns>
-        private static IEnumerable<T> ExtractList<T>(dynamic obj)
+        private static IEnumerable<CardTag> ExtractTagList<T>(dynamic obj, CardTagCategory category)
         {
-            var list = new List<T>();
+            var list = new List<CardTag>();
 
             foreach (var lbl in obj)
-                list.Add((T)lbl);
+                list.Add(new CardTag { Category = category, Value = (string)lbl });
 
             return list;
         }

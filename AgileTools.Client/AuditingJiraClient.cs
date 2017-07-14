@@ -14,13 +14,13 @@ namespace AgileTools.Client
 {
     public class AuditingJiraClient : JiraClient
     {
-        public AuditingJiraClient(string url, string user, string pwd, IModelConverter modelConverter) :
-            base(url, user, pwd, modelConverter)
+        public AuditingJiraClient(string url, string user, string pwd) :
+            base(url, user, pwd)
         {
         }
 
-        public AuditingJiraClient(string url, IAuthenticator authenticator, IModelConverter modelConverter) :
-            base(url, authenticator, modelConverter)
+        public AuditingJiraClient(string url, IAuthenticator authenticator) :
+            base(url, authenticator)
         {
         }
 
