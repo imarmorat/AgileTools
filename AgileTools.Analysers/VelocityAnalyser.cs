@@ -117,6 +117,18 @@ namespace AgileTools.Analysers
             {
                 Velocities = new List<(DateTime from, DateTime to, double velocity)>();
             }
+
+            public override string ToString()
+            {
+                var sb = new StringBuilder();
+                sb.AppendLine("Velocities per period:");
+                Velocities.ForEach(v => sb.AppendLine($"{v.from} -> {v.to} : {v.velocity}"));
+
+                sb.AppendLine("Histogram:");
+                Histogram.ForEach(v => sb.AppendLine($"{v.from} -> {v.to} : {v.frequency}"));
+
+                return sb.ToString();
+            }
         }
 
     }

@@ -13,6 +13,11 @@ namespace AgileTools.CommandLine
 
         public IList<Card> LoadedCards { get; set; }
 
-        public IEnumerable<ICommand> KnownCommands { get; set; }
+        public CommandManager CmdManager { get; set; }
+
+        public Context()
+        {
+            LoadedCards = new List<Card>();
+        }
     }
 }

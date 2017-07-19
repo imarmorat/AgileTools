@@ -15,71 +15,42 @@ namespace AgileTools.CommandLine
     {
         static void Main(string[] args)
         {
-            var context = new Context
-            {
-                KnownCommands = new List<ICommand>
+            var context = new Context();
+            context.CmdManager = new CommandManager(context);
+            context.CmdManager.KnownCommands = new List<ICommand>
                 {
                     new GetCommandHelpCommand(),
                     new LoadCardsCommand(),
                     new ListCardsCommand(),
-                    new ExitCommand()
-                },
-                LoadedCards = new List<Card>()
-            };
+                    new ExitCommand(),
+                    new RunAnalyserCommand(),
+                    new MacroCommand(context.CmdManager) // I dont like my design, looks dodgy. change that later. context is passed around so should use it to access cmdmanager
+                };
 
             PrintIntro();
             context.JiraService = InitCardManagerService();
 
             do
             {
-                var (commandName, commandParams) = GetCommandLineFromUser();
+                Console.Write(":: ");
+                var cmdLine = Console.ReadLine();
+                var errors = (IList<CommandError>)new List<CommandError>();
+                var result = context.CmdManager.ExecuteFromString(cmdLine, ref errors);
 
-                var command = context.KnownCommands.FirstOrDefault(c => c.CommandName == commandName);
-                if (command == null)
+                if (errors.Any())
                 {
-                    Console.WriteLine($"Command '{commandName}' unknown");
-                    continue;
+                    Console.WriteLine("Command failed!");
+                    errors.ForEach(e => Console.WriteLine($"error - [{e.Context}] {e.ErrorMessage}"));
                 }
-
-                if (!command.TryParse(commandParams, out IList<ParameterError> paramErrors))
-                {
-                    Console.WriteLine($"Command '{commandName}' has invalid arguments");
-                    paramErrors.ForEach(pe => Console.WriteLine($"- {pe.ParameterName} : {pe.ErrorMessage}"));
-                    continue;
-                }
-
-                var output = command.Run(context, commandParams);
-                Console.WriteLine(output);
-
+                else
+                    Console.WriteLine(result);
             } while (true);
         }
 
         /// <summary>
-        /// Asks user for his input (command and its parameters)
+        /// Initialize the card manager service
         /// </summary>
         /// <returns></returns>
-        private static (string commandName, List<string> commandParams) GetCommandLineFromUser()
-        {
-            Console.Write(":: ");
-            var commandQuery = Regex.Matches(Console.ReadLine(), "[^\\s\"']+|\"([^\"]*)\"|'([^ ']*)\'");
-            var commandName = string.Empty;
-            var commandParams = new List<string>();
-            foreach (Match match in commandQuery)
-            {
-                if (!match.Success)
-                {
-                    Console.WriteLine($"Issue parsing argument {match.Index} (value: {match.Value})");
-                    continue;
-                }
-
-                if (match.Index == 0)
-                    commandName = match.Value;
-                else
-                    commandParams.Add(match.Value);
-            }
-            return (commandName, commandParams);
-        }
-
         private static JiraService InitCardManagerService()
         {
             Console.Write("user: ");

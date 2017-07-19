@@ -5,38 +5,35 @@ using System.Linq;
 
 namespace AgileTools.CommandLine.Commands
 {
-    public class GetCommandHelpCommand : ICommand
+    public class GetCommandHelpCommand : ICommand, IMacroNotRecordable
     {
         public string CommandName => "help";
-
-        public string GetUsage()
+        public string Description => "gives help on available commands";
+        public enum Level {  Summary = 's', Medium = 'd', Full = 'f' };
+        public IEnumerable<CommandParameter> Parameters => new List<CommandParameter>
         {
-            return $"{CommandName} commandName - gives help on commands";
-        }
+            new CommandParameter.StringParameter("command name", "command you need help on; if not specified, all commands are displayed", true),
+        };
 
-        public string Run(Context context, IEnumerable<string> parameters)
+        public string Run(Context context, IEnumerable<string> parameters, ref IList<CommandError> errors)
         {
             if (parameters.Count() == 0)
             {
                 var sb = new StringBuilder();
-                foreach (var cmd in context.KnownCommands)
-                    sb.AppendLine($"- {cmd.GetUsage()}");
+                foreach (var cmd in context.CmdManager.KnownCommands)
+                    sb.AppendLine($"- {cmd.GetUsage(Level.Summary)}");
                 return sb.ToString(); 
             }
 
-            var commandName = parameters.ElementAt(0);
-            var associatedCommand = context.KnownCommands.FirstOrDefault(c => c.CommandName == commandName);
-            return associatedCommand != null ? associatedCommand.GetUsage() : "unknwon command!";
-        }
+            if (parameters.Count() == 1)
+            {
+                var commandName = parameters.ElementAt(0);
+                var associatedCommand = context.CmdManager.KnownCommands.FirstOrDefault(c => c.CommandName == commandName);
+                return associatedCommand != null ? associatedCommand.GetUsage(Level.Full) : "unknwon command!";
+            }
 
-        public bool TryParse(IEnumerable<string> parameters, out IList<ParameterError> paramErrors)
-        {
-            paramErrors = new List<ParameterError>();
-            return true;
-            //    paramErrors = new List<ParameterError>();
-            //    if (parameters.Count() != 1)
-            //        paramErrors.Add(new ParameterError("command name", "more than 1 parameter provided when expecting only 1"));
-            //    return !paramErrors.Any();
+            errors.Add(new CommandError("parameter count", "too many parameters provided"));
+            return null;
         }
     }
 }

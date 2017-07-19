@@ -7,14 +7,11 @@ namespace AgileTools.CommandLine.Commands
 {
     public class ListCardsCommand : ICommand
     {
-        public string CommandName => "listCards - lists cards that are in the cache";
+        public string CommandName => "listCards";
+        public string Description => "lists cards that are in the cache";
+        public IEnumerable<CommandParameter> Parameters => new List<CommandParameter>();
 
-        public string GetUsage()
-        {
-            return $"{CommandName}";
-        }
-
-        public string Run(Context context, IEnumerable<string> parameters)
+        public string Run(Context context, IEnumerable<string> parameters, ref IList<CommandError> errors)
         {
             if (context.LoadedCards.Count() == 0)
                 return "No cards in cache";
@@ -23,12 +20,6 @@ namespace AgileTools.CommandLine.Commands
             foreach (var card in context.LoadedCards)
                 sb.AppendLine($"- {card}");
             return sb.ToString();
-        }
-
-        public bool TryParse(IEnumerable<string> parameters, out IList<ParameterError> paramErrors)
-        {
-            paramErrors = new List<ParameterError>();
-            return true;
         }
     }
 }
