@@ -5,17 +5,17 @@ using System.Linq;
 
 namespace AgileTools.CommandLine.Commands
 {
-    public class GetCommandHelpCommand : ICommand, IMacroNotRecordable
+    public class GetCommandHelpCommand : CommandBase, IMacroNotRecordable
     {
-        public string CommandName => "help";
-        public string Description => "gives help on available commands";
+        public override string CommandName => "help";
+        public override string Description => "gives help on available commands";
         public enum Level {  Summary = 's', Medium = 'd', Full = 'f' };
-        public IEnumerable<CommandParameter> Parameters => new List<CommandParameter>
+        public override IEnumerable<CommandParameter> Parameters => new List<CommandParameter>
         {
             new CommandParameter.StringParameter("command name", "command you need help on; if not specified, all commands are displayed", true),
         };
 
-        public string Run(Context context, IEnumerable<string> parameters, ref IList<CommandError> errors)
+        public override string Run(Context context, IEnumerable<string> parameters, ref IList<CommandError> errors)
         {
             if (parameters.Count() == 0)
             {

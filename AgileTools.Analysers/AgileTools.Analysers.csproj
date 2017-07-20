@@ -50,6 +50,7 @@
     <Compile Include="AnalyserHelper.cs" />
     <Compile Include="CumulativeFlowAnalyser.cs" />
     <Compile Include="CumulativeFlowResult.cs" />
+    <Compile Include="ExportableResultBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ReleaseAnalyser.cs" />
     <Compile Include="ReleaseResult.cs" />

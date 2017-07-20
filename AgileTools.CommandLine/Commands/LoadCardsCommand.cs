@@ -5,16 +5,16 @@ using System.Linq;
 
 namespace AgileTools.CommandLine.Commands
 {
-    public class LoadCardsCommand : ICommand
+    public class LoadCardsCommand : CommandBase
     {
-        public string CommandName => "loadCards";
-        public string Description => "loads card from source into the cache (cache is cleared each time)";
-        public IEnumerable<CommandParameter> Parameters => new List<CommandParameter>
+        public override string CommandName => "loadCards";
+        public override string Description => "loads card from source into the cache (cache is cleared each time)";
+        public override IEnumerable<CommandParameter> Parameters => new List<CommandParameter>
         {
             new CommandParameter.StringParameter("query", "must be compliant with card source manager", false)
         };
 
-        public string Run(Context context, IEnumerable<string> parameters, ref IList<CommandError> errors)
+        public override string Run(Context context, IEnumerable<string> parameters, ref IList<CommandError> errors)
         {
             var paramCount = parameters.Count();
             if (paramCount != 1)

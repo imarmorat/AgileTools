@@ -5,13 +5,13 @@ using System.Linq;
 
 namespace AgileTools.CommandLine.Commands
 {
-    public class ListCardsCommand : ICommand
+    public class ListCardsCommand : CommandBase
     {
-        public string CommandName => "listCards";
-        public string Description => "lists cards that are in the cache";
-        public IEnumerable<CommandParameter> Parameters => new List<CommandParameter>();
+        public override string CommandName => "listCards";
+        public override string Description => "lists cards that are in the cache";
+        public override IEnumerable<CommandParameter> Parameters => new List<CommandParameter>();
 
-        public string Run(Context context, IEnumerable<string> parameters, ref IList<CommandError> errors)
+        public override string Run(Context context, IEnumerable<string> parameters, ref IList<CommandError> errors)
         {
             if (context.LoadedCards.Count() == 0)
                 return "No cards in cache";

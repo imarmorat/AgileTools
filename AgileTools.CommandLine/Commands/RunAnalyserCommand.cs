@@ -8,7 +8,7 @@ using AgileTools.Analysers;
 
 namespace AgileTools.CommandLine.Commands
 {
-    public class RunAnalyserCommand : ICommand
+    public class RunAnalyserCommand : CommandBase
     {
         private IEnumerable<ICommand> _knownAnalysers = new List<ICommand>
         {
@@ -17,14 +17,14 @@ namespace AgileTools.CommandLine.Commands
             new CumulativeFlowAnalyserHandler()
         };
 
-        public string CommandName => "runAnalyser";
-        public string Description => "";
-        public IEnumerable<CommandParameter> Parameters => new List<CommandParameter>
+        public override string CommandName => "runAnalyser";
+        public override string Description => "";
+        public override IEnumerable<CommandParameter> Parameters => new List<CommandParameter>
         {
             new CommandParameter.StringParameter("analyser name", "", false)
         };
 
-        public string Run(Context context, IEnumerable<string> parameters, ref IList<CommandError> errors)
+        public override string Run(Context context, IEnumerable<string> parameters, ref IList<CommandError> errors)
         {
             if (parameters.Count() < 1)
             {
@@ -42,23 +42,31 @@ namespace AgileTools.CommandLine.Commands
 
             return analyser.Run(context, parameters.Skip(1), ref errors);
         }
+
+        public override string GetUsage(GetCommandHelpCommand.Level level)
+        {
+            var sb = new StringBuilder( base.GetUsage(level) );
+            sb.AppendLine("*** Analysers ***");
+            _knownAnalysers.ForEach(ka => sb.AppendLine($"\tAnalyser {ka.GetUsage(level)}"));
+            return sb.ToString();
+        }
     }
 
     /// <summary>
     /// Handler for velocity analyser
     /// </summary>
-    public class VelocityAnalyserHandler : ICommand
+    public class VelocityAnalyserHandler : CommandBase
     {
-        public string CommandName => "velocity";
-        public string Description => "";
-        public IEnumerable<CommandParameter> Parameters => new List<CommandParameter>
+        public override string CommandName => "velocity";
+        public override string Description => "";
+        public override IEnumerable<CommandParameter> Parameters => new List<CommandParameter>
         {
             new CommandParameter.DateTimeParameter("startDate", ""),
             new CommandParameter.DateTimeParameter("endDate", ""),
             new CommandParameter.IntParameter("bucketSize", "In days")
         };
 
-        public string Run(Context context, IEnumerable<string> parameters, ref IList<CommandError> errors)
+        public override string Run(Context context, IEnumerable<string> parameters, ref IList<CommandError> errors)
         {
             if (parameters.Count() != 3)
             {
@@ -78,13 +86,13 @@ namespace AgileTools.CommandLine.Commands
     /// <summary>
     /// Handler for Rule Checker analyser
     /// </summary>
-    public class BacklogRuleCheckerAnalyserHandler : ICommand
+    public class BacklogRuleCheckerAnalyserHandler : CommandBase
     {
-        public string CommandName => "ruleChecker";
-        public string Description => "";
-        public IEnumerable<CommandParameter> Parameters => new List<CommandParameter>();
+        public override string CommandName => "ruleChecker";
+        public override string Description => "";
+        public override IEnumerable<CommandParameter> Parameters => new List<CommandParameter>();
 
-        public string Run(Context context, IEnumerable<string> parameters, ref IList<CommandError> errors)
+        public override string Run(Context context, IEnumerable<string> parameters, ref IList<CommandError> errors)
         {
             var rules = new List<RuleDefinitionBase>
             {
@@ -100,19 +108,19 @@ namespace AgileTools.CommandLine.Commands
     /// <summary>
     /// Handler for Cumulative Flow analyser
     /// </summary>
-    public class CumulativeFlowAnalyserHandler : ICommand
+    public class CumulativeFlowAnalyserHandler : CommandBase
     {
-        public string CommandName => "cumulFlow";
-        public string Description => "Cumulative Flow analysis helps visualizing bottlenecks and cycle time";
+        public override string CommandName => "cumulFlow";
+        public override string Description => "Cumulative Flow analysis helps visualizing bottlenecks and cycle time";
 
-        public IEnumerable<CommandParameter> Parameters => new List<CommandParameter>
+        public override IEnumerable<CommandParameter> Parameters => new List<CommandParameter>
         {
             new CommandParameter.DateTimeParameter("startDate", ""),
             new CommandParameter.DateTimeParameter("endDate", ""),
             new CommandParameter.IntParameter("bucketSize", "In days")
         };
 
-        public string Run(Context context, IEnumerable<string> parameters, ref IList<CommandError> errors)
+        public override string Run(Context context, IEnumerable<string> parameters, ref IList<CommandError> errors)
         {
                 if (parameters.Count() != 3)
                 {

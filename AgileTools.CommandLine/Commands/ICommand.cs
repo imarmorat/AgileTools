@@ -10,6 +10,7 @@ namespace AgileTools.CommandLine.Commands
         string Description { get; }
         IEnumerable<CommandParameter> Parameters { get; }
         string Run(Context context, IEnumerable<string> parameters, ref IList<CommandError> errors);
+        string GetUsage(GetCommandHelpCommand.Level level);
     }
 
     public class CommandParameter

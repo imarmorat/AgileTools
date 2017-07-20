@@ -18,7 +18,7 @@ namespace AgileTools.CommandLine.Commands
     /// Allows for macros to be recorded and executed.
     /// Known issues: macro name not checked whether it is fit to be stored into a file
     /// </summary>
-    public class MacroCommand : ICommand, IMacroNotRecordable
+    public class MacroCommand : CommandBase, IMacroNotRecordable
     {
         /// <summary>
         /// Macro data 
@@ -63,9 +63,9 @@ namespace AgileTools.CommandLine.Commands
             }
         }
 
-        public string CommandName => "macro";
-        public string Description => "allow for macros to be loaded ran recorded, etc.";
-        public IEnumerable<CommandParameter> Parameters => new List<CommandParameter>
+        public override string CommandName => "macro";
+        public override string Description => "allow for macros to be loaded ran recorded, etc.";
+        public override IEnumerable<CommandParameter> Parameters => new List<CommandParameter>
         {
             new CommandParameter.StringParameter("action", "", false),
             new CommandParameter.StringParameter("action param", "", true),
@@ -100,7 +100,7 @@ namespace AgileTools.CommandLine.Commands
             };
         }
 
-        public string Run(Context context, IEnumerable<string> parameters, ref IList<CommandError> errors)
+        public override string Run(Context context, IEnumerable<string> parameters, ref IList<CommandError> errors)
         {
             var action = (string)Parameters.ElementAt(0).Convert(parameters.ElementAt(0));
             var actionParam = parameters.Count() > 1 ?
