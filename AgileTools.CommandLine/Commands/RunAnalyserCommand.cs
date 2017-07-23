@@ -24,7 +24,7 @@ namespace AgileTools.CommandLine.Commands
             new CommandParameter.StringParameter("analyser name", "", false)
         };
 
-        public override string Run(Context context, IEnumerable<string> parameters, ref IList<CommandError> errors)
+        public override object Run(Context context, IEnumerable<string> parameters, ref IList<CommandError> errors)
         {
             if (parameters.Count() < 1)
             {
@@ -66,7 +66,7 @@ namespace AgileTools.CommandLine.Commands
             new CommandParameter.IntParameter("bucketSize", "In days")
         };
 
-        public override string Run(Context context, IEnumerable<string> parameters, ref IList<CommandError> errors)
+        public override object Run(Context context, IEnumerable<string> parameters, ref IList<CommandError> errors)
         {
             if (parameters.Count() != 3)
             {
@@ -92,7 +92,7 @@ namespace AgileTools.CommandLine.Commands
         public override string Description => "";
         public override IEnumerable<CommandParameter> Parameters => new List<CommandParameter>();
 
-        public override string Run(Context context, IEnumerable<string> parameters, ref IList<CommandError> errors)
+        public override object Run(Context context, IEnumerable<string> parameters, ref IList<CommandError> errors)
         {
             var rules = new List<RuleDefinitionBase>
             {
@@ -120,20 +120,20 @@ namespace AgileTools.CommandLine.Commands
             new CommandParameter.IntParameter("bucketSize", "In days")
         };
 
-        public override string Run(Context context, IEnumerable<string> parameters, ref IList<CommandError> errors)
+        public override object Run(Context context, IEnumerable<string> parameters, ref IList<CommandError> errors)
         {
-                if (parameters.Count() != 3)
-                {
-                    errors.Add(new CommandError("parameter count", "expecting 3 parameters"));
-                    return null;
-                }
+            if (parameters.Count() != 3)
+            {
+                errors.Add(new CommandError("parameter count", "expecting 3 parameters"));
+                return null;
+            }
 
-                var startDate = (DateTime)Parameters.ElementAt(0).Convert(parameters.ElementAt(0));
-                var endDate = (DateTime)Parameters.ElementAt(1).Convert(parameters.ElementAt(1));
-                var bucketSize = new TimeSpan((int)Parameters.ElementAt(2).Convert(parameters.ElementAt(2)), 0, 0, 0);
+            var startDate = (DateTime)Parameters.ElementAt(0).Convert(parameters.ElementAt(0));
+            var endDate = (DateTime)Parameters.ElementAt(1).Convert(parameters.ElementAt(1));
+            var bucketSize = new TimeSpan((int)Parameters.ElementAt(2).Convert(parameters.ElementAt(2)), 0, 0, 0);
 
-                var cmAnalyser = new CumulativeFlowAnalyser(context.JiraService, context.LoadedCards, bucketSize, startDate, endDate);
-            return cmAnalyser.Analyse().ToString();
+            var cmAnalyser = new CumulativeFlowAnalyser(context.JiraService, context.LoadedCards, bucketSize, startDate, endDate);
+            return cmAnalyser.Analyse();
         }
     }
 }

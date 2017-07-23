@@ -31,7 +31,7 @@ namespace AgileTools.Analysers
 
         protected virtual string ConvertToJson()
         {
-            return JsonConvert.SerializeObject(this);
+            return JsonConvert.SerializeObject(this, Formatting.Indented);
         }
     }
 

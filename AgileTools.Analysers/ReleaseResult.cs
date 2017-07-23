@@ -1,6 +1,6 @@
 ﻿namespace AgileTools.Analysers
 {
-    public class ReleaseResult
+    public class ReleaseResult : ExportableResultBase
     {
     }
 }

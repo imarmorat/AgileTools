@@ -1,4 +1,6 @@
-﻿using System;
+﻿using AgileTools.Analysers;
+using AgileTools.CommandLine.Commands.Modifer;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,9 +9,17 @@ using System.Threading.Tasks;
 
 namespace AgileTools.CommandLine.Commands
 {
+    /// <summary>
+    /// Takes care of command execution and notification
+    /// </summary>
     public class CommandManager
     {
-        private Context _Context;
+        #region Private
+
+        private Context _context;
+        private IEnumerable<ICommandModifierHandler> _modifierHandlers;
+
+        #endregion
 
         public EventHandler<CmdExecutedEventArgs> OnCmdExecuted;
 
@@ -17,17 +27,56 @@ namespace AgileTools.CommandLine.Commands
 
         public CommandManager(Context context)
         {
-            _Context = context;
+            _context = context;
+            _modifierHandlers = new List<ICommandModifierHandler>
+            {
+                new ExportCommandModifierHandler()
+            };
         }
 
-        public string ExecuteCommand(ICommand command, IEnumerable<string> parameters, ref IList<CommandError> errors)
+        public object ExecuteCommand(ICommand command, IList<string> parameters, ref IList<CommandError> errors)
         {
-            var output = command.Run(_Context, parameters, ref errors);
+            //
+            // check wether command postfix
+            // format is "-> {destination} {format}
+            var modifierHandler = (ICommandModifierHandler)null;
+            IEnumerable<string> modifierParams = null;
+            IEnumerable<string> commandParams = null;
+
+            var modifers =
+                from p in parameters
+                from mh in _modifierHandlers
+                where p == mh.ModifierKey
+                select mh;
+
+            if (modifers.Count() > 1)
+            {
+                errors.Add(new CommandError("command modifier", "more than one modifier found. expecting 0 or 1."));
+                return null;
+            }
+
+            if (modifers.Count() == 1)
+            {
+                modifierHandler = modifers.ElementAt(0);
+                var modifierIndex = parameters.IndexOf(modifierHandler.ModifierKey);
+                modifierParams = parameters.Skip(modifierIndex + 1);
+                commandParams = parameters.Take(modifierIndex).ToList();
+            }
+            else
+                commandParams = parameters;
+
+            var output = command.Run(_context, commandParams, ref errors);
+
+            if (!errors.Any())
+                modifierHandler?.Handle(modifierParams, output);
+            else
+                errors.Add(new CommandError("command modifiger", "Error found during command execution, command modifier skipped"));
+            
             NotifyCmdExecuted(command, parameters);
             return output;
         }
 
-        public string ExecuteFromString(string commandStr, ref IList<CommandError> errors)
+        public object ExecuteFromString(string commandStr, ref IList<CommandError> errors)
         {
             //
             // 1. gather inputs from the string
@@ -47,7 +96,7 @@ namespace AgileTools.CommandLine.Commands
                 else
                     commandParams.Add(match.Value);
             }
-
+            
             //
             // 2. find associated command
             var command = KnownCommands.FirstOrDefault(c => c.CommandName == commandName);
@@ -59,7 +108,9 @@ namespace AgileTools.CommandLine.Commands
 
             //
             // 3. execute command
-            return ExecuteCommand(command, commandParams, ref errors);
+            var output = ExecuteCommand(command, commandParams, ref errors);
+
+            return output;
         }
 
         protected void NotifyCmdExecuted(ICommand cmd, IEnumerable<string> parameters)

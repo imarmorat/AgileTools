@@ -15,7 +15,7 @@ namespace AgileTools.CommandLine.Commands
             new CommandParameter.StringParameter("command name", "command you need help on; if not specified, all commands are displayed", true),
         };
 
-        public override string Run(Context context, IEnumerable<string> parameters, ref IList<CommandError> errors)
+        public override object Run(Context context, IEnumerable<string> parameters, ref IList<CommandError> errors)
         {
             if (parameters.Count() == 0)
             {

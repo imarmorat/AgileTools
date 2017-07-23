@@ -108,7 +108,7 @@ namespace AgileTools.Analysers
 
         #endregion
 
-        public class VelocityResult
+        public class VelocityResult : ExportableResultBase
         {
             public IList<(DateTime from, DateTime to, double velocity)> Velocities { get; protected set; }
             public IEnumerable<(double from, double to, int frequency)> Histogram { get; internal set; }

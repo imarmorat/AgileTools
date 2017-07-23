@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace AgileTools.Analysers
 {
-    public class RuleCheckerResult
+    public class RuleCheckerResult : ExportableResultBase
     {
         public IEnumerable<RuleBreach> Breaches { get; set; }
 

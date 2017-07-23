@@ -100,7 +100,7 @@ namespace AgileTools.CommandLine.Commands
             };
         }
 
-        public override string Run(Context context, IEnumerable<string> parameters, ref IList<CommandError> errors)
+        public override object Run(Context context, IEnumerable<string> parameters, ref IList<CommandError> errors)
         {
             var action = (string)Parameters.ElementAt(0).Convert(parameters.ElementAt(0));
             var actionParam = parameters.Count() > 1 ?
@@ -224,7 +224,9 @@ namespace AgileTools.CommandLine.Commands
                     if (cmd == null)
                         throw new Exception($"Command '{step.CommandName}' is unknown.Macro terminated.");
 
-                    output.AppendLine(_cmdManager.ExecuteCommand(cmd, step.CommandArgs, ref errors));
+                    var result = _cmdManager.ExecuteCommand(cmd, step.CommandArgs.ToList(), ref errors);
+
+                    output.AppendLine(result?.ToString());
                     if (errors.Any())
                         throw new Exception($"Errors while running");
                 });

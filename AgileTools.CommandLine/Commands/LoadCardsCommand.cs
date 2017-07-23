@@ -14,7 +14,7 @@ namespace AgileTools.CommandLine.Commands
             new CommandParameter.StringParameter("query", "must be compliant with card source manager", false)
         };
 
-        public override string Run(Context context, IEnumerable<string> parameters, ref IList<CommandError> errors)
+        public override object Run(Context context, IEnumerable<string> parameters, ref IList<CommandError> errors)
         {
             var paramCount = parameters.Count();
             if (paramCount != 1)

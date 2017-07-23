@@ -11,7 +11,7 @@ namespace AgileTools.CommandLine.Commands
         public override string Description => "lists cards that are in the cache";
         public override IEnumerable<CommandParameter> Parameters => new List<CommandParameter>();
 
-        public override string Run(Context context, IEnumerable<string> parameters, ref IList<CommandError> errors)
+        public override object Run(Context context, IEnumerable<string> parameters, ref IList<CommandError> errors)
         {
             if (context.LoadedCards.Count() == 0)
                 return "No cards in cache";

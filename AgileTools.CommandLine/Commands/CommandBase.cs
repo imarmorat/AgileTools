@@ -15,7 +15,7 @@ namespace AgileTools.CommandLine.Commands
 
         public abstract IEnumerable<CommandParameter> Parameters { get; }
 
-        public abstract string Run(Context context, IEnumerable<string> parameters, ref IList<CommandError> errors);
+        public abstract object Run(Context context, IEnumerable<string> parameters, ref IList<CommandError> errors);
 
         public virtual string GetUsage(GetCommandHelpCommand.Level level)
         {
