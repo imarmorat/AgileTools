@@ -7,6 +7,13 @@ Initially build as a ticket management tool, it grew popularity in the agile com
 
 It is in early stage and massive refactoring are frequent.
 
+## Roadmap
+
+- Finalizing current analysers
+- Strengthening code and error handling
+- Graph: using libs such as D3.js, offering some out-of-the-box common graphs
+- Execution command line (as opposed to current interpreter)
+
 ## What does it do
 
 A tool should adapt to the need of the ones using it rather than the opposite; many agile tools these days still struggle to offer such flexibility.
