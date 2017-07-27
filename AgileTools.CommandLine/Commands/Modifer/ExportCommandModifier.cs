@@ -23,10 +23,10 @@ namespace AgileTools.CommandLine.Commands.Modifer
             _resultExporters = new List<IResultExporter> { new FileExporter() };
         }
 
-        public object Handle(IEnumerable<string> modifier, object cmdOutput)
+        public object Handle(IEnumerable<string> modifierParams, object cmdOutput)
         {
-            var destination = modifier.ElementAt(0);
-            var format = modifier.ElementAt(1);
+            var destination = modifierParams.ElementAt(0);
+            var format = modifierParams.Count() == 2 ? modifierParams.ElementAt(1) : null;
 
             ExportResult(cmdOutput, destination, format);
             return null;
@@ -44,18 +44,6 @@ namespace AgileTools.CommandLine.Commands.Modifer
         {
             var transformedOutput = (object)null;
 
-            // 
-            // Do the transformation if possible
-            if (output is ITransformableResult transformableOutput)
-            {
-                if (!transformableOutput.CanTransform(format))
-                    throw new Exception($"This result can not be transformed to the given format");
-
-                transformedOutput = transformableOutput.Transform(format);
-            }
-            else
-                transformedOutput = output?.ToString();
-
             //
             // Find exporter
             var matches = _resultExporters.Where(re => re.CanExportTo(destination));
@@ -65,9 +53,25 @@ namespace AgileTools.CommandLine.Commands.Modifer
             if (matches.Count() > 1)
                 throw new Exception($"Oupsy, more than one exporter found for '{destination}'. Contact me!");
 
+            var exporter = matches.ElementAt(0);
+
+            // 
+            // Do the transformation if possible
+            if (output is ITransformableResult transformableOutput)
+            {
+                if (!transformableOutput.CanTransform(format, exporter.ContentFormat))
+                    throw new Exception($"This result can not be transformed to the requested format");
+
+                transformedOutput = transformableOutput.Transform(format, exporter.ContentFormat);
+            }
+            else
+            {
+                // do a basic conversion if possible
+                transformedOutput = output?.ToString();
+            }
+            
             //
             // Finally do the export
-            var exporter = matches.ElementAt(0);
             exporter.Export(transformedOutput, destination);
         }
     }

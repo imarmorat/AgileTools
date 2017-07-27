@@ -14,16 +14,17 @@ namespace AgileTools.Analysers
         public ExportableResultBase()
         {
             TransformHandlerMapping.Add("json", () => ConvertToJson());
+            TransformHandlerMapping.Add("txt", () => this.ToString() ));
         }
 
-        public bool CanTransform(string format)
+        public bool CanTransform(string format, string destinationFormat)
         {
-            return TransformHandlerMapping.ContainsKey(format);
+            return TransformHandlerMapping.ContainsKey(format) && destinationFormat == "txt";
         }
 
-        public object Transform(string format)
+        public object Transform(string format, string destinationFormat)
         {
-            if (!CanTransform(format))
+            if (!CanTransform(format, destinationFormat))
                 throw new Exception($"This output cannot be converted to format {format}");
 
             return TransformHandlerMapping[format]();
@@ -33,11 +34,5 @@ namespace AgileTools.Analysers
         {
             return JsonConvert.SerializeObject(this, Formatting.Indented);
         }
-    }
-
-    public interface ITransformableResult
-    {
-        object Transform(string format);
-        bool CanTransform(string format);
     }
 }

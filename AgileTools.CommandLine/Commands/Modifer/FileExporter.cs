@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Text.RegularExpressions;
 
 namespace AgileTools.CommandLine.Commands
@@ -8,6 +9,8 @@ namespace AgileTools.CommandLine.Commands
     /// </summary>
     public class FileExporter : IResultExporter
     {
+        public string ContentFormat => "txt";
+
         /// <summary>
         /// Can export if it looks like a path + filename or just a filename
         /// </summary>
