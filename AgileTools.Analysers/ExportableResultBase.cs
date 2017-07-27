@@ -14,7 +14,7 @@ namespace AgileTools.Analysers
         public ExportableResultBase()
         {
             TransformHandlerMapping.Add("json", () => ConvertToJson());
-            TransformHandlerMapping.Add("txt", () => this.ToString() ));
+            TransformHandlerMapping.Add("txt", () => this.ToString() );
         }
 
         public bool CanTransform(string format, string destinationFormat)
