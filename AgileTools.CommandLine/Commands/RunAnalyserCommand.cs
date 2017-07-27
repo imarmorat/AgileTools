@@ -17,7 +17,7 @@ namespace AgileTools.CommandLine.Commands
             new CumulativeFlowAnalyserHandler()
         };
 
-        public override string CommandName => "runAnalyser";
+        public override string CommandName => "analyse";
         public override string Description => "";
         public override IEnumerable<CommandParameter> Parameters => new List<CommandParameter>
         {
