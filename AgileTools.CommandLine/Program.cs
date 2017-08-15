@@ -58,7 +58,7 @@ namespace AgileTools.CommandLine
             Console.Write("pwd: ");
             var pwd = Utils.ReadPasswordFromConsole();
 
-            var jiraClient = (ICardManagerClient)new JiraClient("http://10.0.75.1:8080", userName, pwd);
+            var jiraClient = (ICardManagerClient)new AuditingJiraClient("http://10.0.75.1:8080", userName, pwd);
             jiraClient = new CachedJiraClient(jiraClient);
             jiraClient.ModelConverter = new DefaultModelConverter(jiraClient);
             var jiraService = new JiraService(jiraClient);

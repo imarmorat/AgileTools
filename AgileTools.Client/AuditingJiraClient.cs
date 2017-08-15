@@ -40,7 +40,7 @@ namespace AgileTools.Client
             };
 
             File.WriteAllText(
-                Path.Combine(Directory.GetCurrentDirectory(), "/Audit/" + filename),
+                Path.Combine("Audit/" + filename),
                 JsonConvert.SerializeObject(content)
                 );
 

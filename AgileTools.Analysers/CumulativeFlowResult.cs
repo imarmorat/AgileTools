@@ -31,15 +31,12 @@ namespace AgileTools.Analysers
                 return string.Empty;
 
             var sb = new StringBuilder();
-            sb.Append("From,To,");
-            Buckets[0].FlowData.Keys.ForEach(s => sb.Append($"\"{s.Name}\","));
+            sb.Append("From,To,Status,Points");
             sb.AppendLine();
 
             Buckets.ForEach(b =>
             {
-                sb.Append($"\"{b.From}\",\"{b.To}\",");
-                b.FlowData.ForEach(fd => sb.Append($"{fd.Value},"));
-                sb.AppendLine();
+                b.FlowData.ForEach(fd => sb.AppendLine($"\"{b.From}\",\"{b.To}\",\"{fd.Key}\", {fd.Value}"));
             });
 
             return sb.ToString();
