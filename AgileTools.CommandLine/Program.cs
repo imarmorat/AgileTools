@@ -28,7 +28,7 @@ namespace AgileTools.CommandLine
                 };
 
             PrintIntro();
-            context.JiraService = InitCardManagerService();
+            context.JiraService = InitCardManagerService(args.Length == 1 ? args[1] : null);
 
             do
             {
@@ -51,14 +51,18 @@ namespace AgileTools.CommandLine
         /// Initialize the card manager service
         /// </summary>
         /// <returns></returns>
-        private static JiraService InitCardManagerService()
+        private static JiraService InitCardManagerService(string cardClientUrl)
         {
             Console.Write("user: ");
             var userName = Console.ReadLine();
             Console.Write("pwd: ");
             var pwd = Utils.ReadPasswordFromConsole();
 
-            var jiraClient = (ICardManagerClient)new AuditingJiraClient("http://10.0.75.1:8080", userName, pwd);
+            var jiraClient = (ICardManagerClient)new AuditingJiraClient(
+                cardClientUrl ?? "http://10.0.75.1:8080", 
+                userName, 
+                pwd);
+
             jiraClient = new CachedJiraClient(jiraClient);
             jiraClient.ModelConverter = new DefaultModelConverter(jiraClient);
             var jiraService = new JiraService(jiraClient);
