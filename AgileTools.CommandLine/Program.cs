@@ -8,11 +8,14 @@ using AgileTools.Core;
 using AgileTools.Client;
 using AgileTools.Core.Models;
 using System.Text.RegularExpressions;
+using log4net;
 
 namespace AgileTools.CommandLine
 {
     class Program
     {
+        private static ILog _logger = LogManager.GetLogger(typeof(Program));
+
         static void Main(string[] args)
         {
             var context = new Context();

@@ -45,6 +45,11 @@ namespace AgileTools.Analysers
                 bucketEndDate += _bucketSize;
             }
 
+            var totalScope = bdownResult.Buckets.Last().Scope;
+            var guidelineStep = totalScope / bdownResult.Buckets.Count();
+            var x = guidelineStep;
+            bdownResult.Buckets.ForEach(b => { b.Guideline = x; x += guidelineStep; });
+
             return bdownResult;
         }
     }
@@ -63,6 +68,18 @@ namespace AgileTools.Analysers
         public BurndownResult()
         {
             Buckets = new List<Bucket>();
+        }
+
+        public override string ToString()
+        {
+            var sb = new StringBuilder();
+            sb.AppendLine($"BDown result");
+            sb.AppendLine($"Scope\tDone\tGuideline");
+            Buckets.ForEach(b =>
+            {
+                sb.AppendLine($"{b.Scope}\t{b.Completed}\t{b.Guideline}");
+            });
+            return sb.ToString();
         }
     }
 }
