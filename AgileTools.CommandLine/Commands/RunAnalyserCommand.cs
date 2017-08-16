@@ -161,7 +161,10 @@ namespace AgileTools.CommandLine.Commands
         {
             new CommandParameter.DateTimeParameter("startDate", ""),
             new CommandParameter.DateTimeParameter("endDate", ""),
-            new CommandParameter.IntParameter("bucketSize", "In days")
+            new CommandParameter.DateTimeParameter("targetDate", ""),
+            new CommandParameter.IntParameter("bucketSize", "In days"),
+            new CommandParameter.IntParameter("minVelocity", "minimum velocity (confidence range)"),
+            new CommandParameter.IntParameter("maxVelocity", "maximum velocity (confidence range)"),
         };
 
         public override object Run(Context context, IEnumerable<string> parameters, ref IList<CommandError> errors)
@@ -174,9 +177,12 @@ namespace AgileTools.CommandLine.Commands
 
             var startDate = (DateTime)Parameters.ElementAt(0).Convert(parameters.ElementAt(0));
             var endDate = (DateTime)Parameters.ElementAt(1).Convert(parameters.ElementAt(1));
-            var bucketSize = new TimeSpan((int)Parameters.ElementAt(2).Convert(parameters.ElementAt(2)), 0, 0, 0);
+            var targetDate = (DateTime)Parameters.ElementAt(2).Convert(parameters.ElementAt(2));
+            var bucketSize = new TimeSpan((int)Parameters.ElementAt(3).Convert(parameters.ElementAt(3)), 0, 0, 0);
+            var minVelocity = (double)Parameters.ElementAt(4).Convert(parameters.ElementAt(4));
+            var maxVelocity = (double)Parameters.ElementAt(5).Convert(parameters.ElementAt(5));
 
-            var cmAnalyser = new BurndownAnalyser(context.LoadedCards, startDate, endDate, bucketSize);
+            var cmAnalyser = new BurndownAnalyser(context.LoadedCards, startDate, endDate, targetDate, bucketSize, minVelocity, maxVelocity);
             return cmAnalyser.Analyse();
         }
     }
