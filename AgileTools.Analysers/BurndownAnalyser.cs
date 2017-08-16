@@ -50,7 +50,13 @@ namespace AgileTools.Analysers
                     bucket.Completed = null;
                 else
                     bucket.Completed = _cards
-                        .Where( p=> p.GetFieldAtDate<CardStatus>(CardFieldMeta.Status, bucketEndDate).Category == StatusCategory.Final )
+                        .Where( p=>
+                        {
+                            var status = p.GetFieldAtDate<CardStatus>(CardFieldMeta.Status, bucketEndDate);
+                            return status != null ?
+                                status.Category == StatusCategory.Final :
+                                false;
+                            })
                         .Sum(p => p.GetFieldAtDate<double?>(CardFieldMeta.Points, bucketEndDate) ?? 0);
 
                 bdownResult.Buckets.Add(bucket);
