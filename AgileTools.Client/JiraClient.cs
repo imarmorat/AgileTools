@@ -95,22 +95,30 @@ namespace AgileTools.Client
         /// <returns></returns>
         public IEnumerable<JiraField> GetFields()
         {
+            var list = new List<JiraField>();
+
             var response = ExecuteRequest($"{MainRestPrefix}/field", Method.GET);
             if (response.StatusCode != HttpStatusCode.OK)
-                yield return null;
+                return list;
 
             foreach (var field in response.Data)
-                yield return ModelConverter.ConvertField(field);
+                list.Add(ModelConverter.ConvertField(field));
+
+            return list;
         }
 
         public IEnumerable<CardStatus> GetStatuses()
         {
+            var list = new List<CardStatus>();
+
             var response = ExecuteRequest($"{MainRestPrefix}/status", Method.GET);
             if (response.StatusCode != HttpStatusCode.OK)
-                yield return null;
+                return list;
 
             foreach (var status in response.Data)
-                yield return ModelConverter.ConvertStatus(status);
+                list.Add(ModelConverter.ConvertStatus(status));
+
+            return list;
         }
 
         public Card GetTicket(string ticketId)
