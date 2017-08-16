@@ -29,12 +29,12 @@ namespace AgileTools.Sandbox
 
             var analysers = new List<IAnalyser<object>>
             {
-                new CumulativeFlowAnalyser(jiraService, cards),
+                //new CumulativeFlowAnalyser(jiraService, cards),
                 new RuleCheckerAnalyser  ( 
                     new List<RuleDefinitionBase> { new CardInProgressButNotAssignedRule() },
                     cards
                     ),
-                new VelocityAnalyser(cards, DateTime.Parse("2017-07-05"), DateTime.Now.AddDays(3), new TimeSpan(1,0,0,0))
+                new VelocityAnalyser(cards, DateTime.Parse("2017-07-05"), DateTime.Now.AddDays(3), new TimeSpan(1,0,0,0)),
             };
 
             analysers.ForEach(a =>

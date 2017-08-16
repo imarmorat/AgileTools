@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using AgileTools.Core;
 using AgileTools.Analysers;
+using AgileTools.Core.Models;
 
 namespace AgileTools.CommandLine.Commands
 {
@@ -14,7 +15,8 @@ namespace AgileTools.CommandLine.Commands
         {
             new VelocityAnalyserHandler(),
             new BacklogRuleCheckerAnalyserHandler(),
-            new CumulativeFlowAnalyserHandler()
+            new CumulativeFlowAnalyserHandler(),
+            new BurndownAnalyserHandler()
         };
 
         public override string CommandName => "analyse";
@@ -45,7 +47,7 @@ namespace AgileTools.CommandLine.Commands
 
         public override string GetUsage(GetCommandHelpCommand.Level level)
         {
-            var sb = new StringBuilder( base.GetUsage(level) );
+            var sb = new StringBuilder(base.GetUsage(level));
             sb.AppendLine("*** Analysers ***");
             _knownAnalysers.ForEach(ka => sb.AppendLine($"\tAnalyser {ka.GetUsage(level)}"));
             return sb.ToString();
@@ -74,8 +76,8 @@ namespace AgileTools.CommandLine.Commands
                 return null;
             }
 
-            var startDate = (DateTime) Parameters.ElementAt(0).Convert(parameters.ElementAt(0));
-            var endDate = (DateTime) Parameters.ElementAt(1).Convert(parameters.ElementAt(1));
+            var startDate = (DateTime)Parameters.ElementAt(0).Convert(parameters.ElementAt(0));
+            var endDate = (DateTime)Parameters.ElementAt(1).Convert(parameters.ElementAt(1));
             var bucketSize = new TimeSpan((int)Parameters.ElementAt(2).Convert(parameters.ElementAt(2)), 0, 0, 0);
 
             var velocityAnalyser = new VelocityAnalyser(context.LoadedCards, startDate, endDate, bucketSize);
@@ -117,6 +119,48 @@ namespace AgileTools.CommandLine.Commands
         {
             new CommandParameter.DateTimeParameter("startDate", ""),
             new CommandParameter.DateTimeParameter("endDate", ""),
+            new CommandParameter.IntParameter("bucketSize", "In days"),
+            new CommandParameter.StringParameter("statuses", "list of status to consider. if not specified, all statuses", true)
+        };
+
+        public override object Run(Context context, IEnumerable<string> parameters, ref IList<CommandError> errors)
+        {
+            if (parameters.Count() != 3)
+            {
+                errors.Add(new CommandError("parameter count", "expecting 3 parameters"));
+                return null;
+            }
+
+            var startDate = (DateTime)Parameters.ElementAt(0).Convert(parameters.ElementAt(0));
+            var endDate = (DateTime)Parameters.ElementAt(1).Convert(parameters.ElementAt(1));
+            var bucketSize = new TimeSpan((int)Parameters.ElementAt(2).Convert(parameters.ElementAt(2)), 0, 0, 0);
+            var statusList = Parameters.Count() == 4 ?
+                ExtractStatusList(context, (string)Parameters.ElementAt(3).Convert(parameters.ElementAt(3))) :
+                null;
+
+            var cmAnalyser = new CumulativeFlowAnalyser(context.JiraService, context.LoadedCards, statusList, bucketSize, startDate, endDate);
+            return cmAnalyser.Analyse();
+        }
+
+        private List<CardStatus> ExtractStatusList(Context context, string statusList)
+        {
+            var statuses = statusList.Split(',');
+            return statuses.Select(sName => context.JiraService.Statuses.First(s => string.Compare(s.Name, sName, true) == 0)).ToList();
+        }
+    }
+
+    /// <summary>
+    /// Handler for Burndown analyser
+    /// </summary>
+    public class BurndownAnalyserHandler : CommandBase
+    {
+        public override string CommandName => "bdown";
+        public override string Description => "Burndown analysis";
+
+        public override IEnumerable<CommandParameter> Parameters => new List<CommandParameter>
+        {
+            new CommandParameter.DateTimeParameter("startDate", ""),
+            new CommandParameter.DateTimeParameter("endDate", ""),
             new CommandParameter.IntParameter("bucketSize", "In days")
         };
 
@@ -132,7 +176,7 @@ namespace AgileTools.CommandLine.Commands
             var endDate = (DateTime)Parameters.ElementAt(1).Convert(parameters.ElementAt(1));
             var bucketSize = new TimeSpan((int)Parameters.ElementAt(2).Convert(parameters.ElementAt(2)), 0, 0, 0);
 
-            var cmAnalyser = new CumulativeFlowAnalyser(context.JiraService, context.LoadedCards, bucketSize, startDate, endDate);
+            var cmAnalyser = new BurndownAnalyser(context.LoadedCards, startDate, endDate, bucketSize);
             return cmAnalyser.Analyse();
         }
     }
