@@ -20,6 +20,7 @@ namespace AgileTools.Client
         private string MainRestPrefix = "/rest/api/latest";
         private string AgileRestPrefix = "/rest/agile/latest";
         private IModelConverter _modelConverter;
+        private IList<HttpStatusCode> _allowedResponseStatusCode = new List<HttpStatusCode> { HttpStatusCode.OK, HttpStatusCode.NotFound };
         
         #endregion
 
@@ -66,20 +67,26 @@ namespace AgileTools.Client
 
         public Sprint GetSprint(string sprintId)
         {
-            var response = ExecuteRequest($"{AgileRestPrefix}/sprint/{sprintId}", Method.GET, HttpStatusCode.OK);
-            return ModelConverter.ConvertSprint(response.Data); 
+            var response = ExecuteRequest($"{AgileRestPrefix}/sprint/{sprintId}", Method.GET);
+            return response.StatusCode == HttpStatusCode.OK ?
+                ModelConverter.ConvertSprint(response.Data) :
+                null;
         }
 
         public CardStatus GetStatus(string statusId)
         {
-            var response = ExecuteRequest($"{MainRestPrefix}/status/{statusId}", Method.GET, HttpStatusCode.OK);
-            return ModelConverter.ConvertStatus(response.Data);
+            var response = ExecuteRequest($"{MainRestPrefix}/status/{statusId}", Method.GET);
+            return response.StatusCode == HttpStatusCode.OK ?
+                ModelConverter.ConvertStatus(response.Data) :
+                null;
         }
 
         public User GetUser(string userId)
         {
-            var response = ExecuteRequest($"{MainRestPrefix}/user?key={userId}", Method.GET, HttpStatusCode.OK);
-            return ModelConverter.ConvertUser(response.Data);
+            var response = ExecuteRequest($"{MainRestPrefix}/user?key={userId}", Method.GET);
+            return response.StatusCode == HttpStatusCode.OK ?
+                ModelConverter.ConvertUser(response.Data) :
+                null;
         }
 
         /// <summary>
@@ -88,14 +95,20 @@ namespace AgileTools.Client
         /// <returns></returns>
         public IEnumerable<JiraField> GetFields()
         {
-            var response = ExecuteRequest($"{MainRestPrefix}/field", Method.GET, HttpStatusCode.OK);
+            var response = ExecuteRequest($"{MainRestPrefix}/field", Method.GET);
+            if (response.StatusCode != HttpStatusCode.OK)
+                yield return null;
+
             foreach (var field in response.Data)
                 yield return ModelConverter.ConvertField(field);
         }
 
         public IEnumerable<CardStatus> GetStatuses()
         {
-            var response = ExecuteRequest($"{MainRestPrefix}/status", Method.GET, HttpStatusCode.OK);
+            var response = ExecuteRequest($"{MainRestPrefix}/status", Method.GET);
+            if (response.StatusCode != HttpStatusCode.OK)
+                yield return null;
+
             foreach (var status in response.Data)
                 yield return ModelConverter.ConvertStatus(status);
         }
@@ -104,34 +117,40 @@ namespace AgileTools.Client
         {
             var response = ExecuteRequest(
                 $"{MainRestPrefix}/issue/{ticketId}&expand=changelog&fields=*all,comment",
-                Method.GET,
-                HttpStatusCode.OK);
-            return ModelConverter.ConvertCard(response.Data, GetFields());
+                Method.GET);
+
+            return response.StatusCode == HttpStatusCode.OK ? 
+                ModelConverter.ConvertCard(response.Data, GetFields()) : 
+                null;
         }
 
         public IEnumerable<Card> GetTickets(string query)
         {
             var index = 0;
             var total = 0;
-
+            var fields = GetFields();
             do
             {
                 var response = ExecuteRequest(
                     $"{MainRestPrefix}/search?jql={query}&expand=changelog&fields=*all,comment&startAt={index}",
-                    Method.GET,
-                    HttpStatusCode.OK);
+                    Method.GET);
 
                 index += (int)response.Data.maxResults;
                 total = (int)response.Data.total;
 
                 foreach (var ticket in response.Data.issues)
-                    yield return ModelConverter.ConvertCard(ticket, GetFields()); //ticket;
+                    yield return ModelConverter.ConvertCard(ticket, fields); //ticket;
             } while (index < total);
         }
 
         #region Protected methods
 
-        protected virtual dynamic ExecuteRequest(string resource, Method method,  HttpStatusCode expectedCode, bool throwExceptionIfWrongReturnCode = true)
+        protected virtual dynamic ExecuteRequest(string resource, Method method, bool throwExceptionIfWrongReturnCode = true)
+        {
+            return ExecuteRequest(resource, method, _allowedResponseStatusCode, throwExceptionIfWrongReturnCode);
+        }
+
+        protected virtual dynamic ExecuteRequest(string resource, Method method,  IList<HttpStatusCode> expectedCode, bool throwExceptionIfWrongReturnCode = true)
         {
             var request = new RestRequest(resource, method) { RequestFormat = DataFormat.Json };
             var response = _restClient.Execute<dynamic>(request);
@@ -141,10 +160,10 @@ namespace AgileTools.Client
             return response;
         }
 
-        protected static void CheckReturnCode(IRestResponse<dynamic> response, HttpStatusCode expectedCode, bool throwExceptionIfWrongReturnCode)
+        protected static void CheckReturnCode(IRestResponse<dynamic> response, IList<HttpStatusCode> expectedCode, bool throwExceptionIfWrongReturnCode)
         {
-            if (throwExceptionIfWrongReturnCode && response.StatusCode != expectedCode)
-                throw new Exception($"REST response returned an unexpected code (is {response.StatusCode}, expecting {expectedCode}");
+            if (throwExceptionIfWrongReturnCode && !expectedCode.Contains(response.StatusCode))
+                throw new Exception($"REST response returned an unexpected code (is {response.StatusCode}, expecting {expectedCode}).");
         }
 
         #endregion

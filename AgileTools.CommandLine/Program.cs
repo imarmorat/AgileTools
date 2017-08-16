@@ -28,7 +28,7 @@ namespace AgileTools.CommandLine
                 };
 
             PrintIntro();
-            context.JiraService = InitCardManagerService(args.Length == 1 ? args[1] : null);
+            context.JiraService = InitCardManagerService(args.Length == 1 ? args[0] : null);
 
             do
             {

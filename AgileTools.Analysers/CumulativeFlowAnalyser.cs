@@ -20,6 +20,7 @@ namespace AgileTools.Analysers
         private DateTime _dateTo;
         private TimeSpan _bucketSize;
         private JiraService _jiraService;
+        private IEnumerable<CardStatus> _statusesFilter;
 
         #endregion
 
@@ -33,10 +34,11 @@ namespace AgileTools.Analysers
         /// <param name="bucketSize">size of the bucket. if not specifed, set to a day</param>
         /// <param name="from">start date - if not specified, taking the earliest created ticket</param>
         /// <param name="to">end date - if not specified, taking the latest ticket closure</param>
-        public CumulativeFlowAnalyser(JiraService jiraService, IEnumerable<Card> tickets, TimeSpan? bucketSize = null,DateTime? from = null, DateTime? to = null)
+        public CumulativeFlowAnalyser(JiraService jiraService, IEnumerable<Card> tickets, IEnumerable<CardStatus> statusesFilter, TimeSpan? bucketSize = null,DateTime? from = null, DateTime? to = null)
         {
             _jiraService = jiraService ?? throw new ArgumentNullException(nameof(jiraService));
             _cards = tickets;
+            _statusesFilter = statusesFilter;
             _dateFrom = from ?? _cards.Min(t => t.CreationDate);
             _dateTo = to ?? _cards.Max(t => t.ClosureDate) ?? DateTime.Now;
             _bucketSize = bucketSize ?? new TimeSpan(1, 0, 0, 0);
@@ -60,7 +62,9 @@ namespace AgileTools.Analysers
                     FlowData = new Dictionary<CardStatus, double>()
                 };
 
-                _jiraService.Statuses.ForEach(s =>
+                var statuses = _statusesFilter.Any() ? _statusesFilter : _jiraService.Statuses;
+
+                statuses.ForEach(s =>
                 {
                     var cardsInSameStatus = _cards.Where(card => 
                     s.Equals(card.GetFieldAtDate<CardStatus>(CardFieldMeta.Status, bucket.To)) && 

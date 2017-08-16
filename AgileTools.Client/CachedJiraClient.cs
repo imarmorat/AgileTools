@@ -46,13 +46,17 @@ namespace AgileTools.Client
         /// </summary>
         private void PreloadData()
         {
-            _fieldCache = _client.GetFields();
+            _logger.Info($"Starting data preloading");
+
+            _fieldCache = _client.GetFields().ToList();
             _logger.Info($"Caching {_fieldCache.Count()} fields");
 
-            _statusCache = _client.GetStatuses();
+            _statusCache = _client.GetStatuses().ToList();
             _logger.Info($"Caching {_statusCache.Count()} statuses");
 
             _preloadCompleted = true;
+
+            _logger.Info($"Preloading complete");
         }
 
         public void CommentTicket(string ticketId, string comment, string author = null)

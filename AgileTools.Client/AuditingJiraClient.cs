@@ -24,16 +24,16 @@ namespace AgileTools.Client
         {
         }
 
-        protected override dynamic ExecuteRequest(string resource, Method method, HttpStatusCode expectedCode, bool throwExceptionIfWrongReturnCode = true)
+        protected override dynamic ExecuteRequest(string resource, Method method, IList<HttpStatusCode> expectedCodes, bool throwExceptionIfWrongReturnCode = true)
         {
-            var response = base.ExecuteRequest(resource, method, expectedCode, false);
+            var response = base.ExecuteRequest(resource, method, expectedCodes, false);
 
             var filename = $"Audit-{DateTime.Now:yyyy-MMM-dd hh-mm-sss-fff}.json";
             var content = new
             {
                 Resource = resource,
                 HttpMethod = method,
-                ExpectedHttpReturnStatus = expectedCode,
+                ExpectedHttpReturnStatus = expectedCodes,
                 ActualHttpReturnStatus = response.StatusCode,
                 When = DateTime.Now,
                 ResponseContent = ((IRestResponse)response).Content
@@ -45,7 +45,7 @@ namespace AgileTools.Client
                 );
 
             if (throwExceptionIfWrongReturnCode)
-                CheckReturnCode(response, expectedCode, true);
+                CheckReturnCode(response, expectedCodes, true);
 
             return response;
         }
