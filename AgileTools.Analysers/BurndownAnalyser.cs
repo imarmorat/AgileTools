@@ -76,8 +76,9 @@ namespace AgileTools.Analysers
 
             // 
             // confidence cone
-            var currConfidenceConeLow = _minVelocity;
-            var currConfidenceConeHigh = _maxVelocity;
+            var currBucket = bdownResult.Buckets.First(b => b.From >= DateTime.Now && DateTime.Now <= b.To);
+            var currConfidenceConeLow = _minVelocity + currBucket.Completed;
+            var currConfidenceConeHigh = _maxVelocity + currBucket.Completed;
             bdownResult.Buckets
                 .Where(b => DateTime.Now >= b.From)
                 .OrderBy(b => b.From)
@@ -94,7 +95,7 @@ namespace AgileTools.Analysers
         }
     }
 
-    public class BurndownResult
+    public class BurndownResult : ExportableResultBase
     {
         public List<Bucket> Buckets { get; set; }
 
@@ -112,7 +113,25 @@ namespace AgileTools.Analysers
         public BurndownResult()
         {
             Buckets = new List<Bucket>();
+            TransformHandlerMapping.Add("csv", ConvertToCsv);
         }
+
+        private string ConvertToCsv()
+        {
+            if (!Buckets.Any())
+                return string.Empty;
+
+            var sb = new StringBuilder();
+            sb.AppendLine("From,To,Scope,Done,Guideline,ConeLow,ConeHigh");
+
+            Buckets.ForEach(b =>
+            {
+                sb.AppendLine($"\"{b.From}\",\"{b.To}\",{b.Scope}, {b.Completed},{b.Guideline},{b.ConfidenceConeLow},{b.ConfidenceConeHigh}");
+            });
+
+            return sb.ToString();
+        }
+
 
         public override string ToString()
         {
