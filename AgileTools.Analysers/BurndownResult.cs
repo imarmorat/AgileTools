@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Linq;
 
 namespace AgileTools.Analysers
 {
@@ -17,6 +18,7 @@ namespace AgileTools.Analysers
             public DateTime To { get; internal set; }
             public double? ConfidenceConeLow { get; internal set; }
             public double? ConfidenceConeHigh { get; internal set; }
+            public int NotPointed { get; internal set; }
         }
 
         public BurndownResult()
@@ -31,11 +33,11 @@ namespace AgileTools.Analysers
                 return string.Empty;
 
             var sb = new StringBuilder();
-            sb.AppendLine("From,To,Scope,Done,Guideline,ConeLow,ConeHigh");
+            sb.AppendLine("From,To,Scope,Done,NotPointed,Guideline,ConeLow,ConeHigh");
 
             Buckets.ForEach(b =>
             {
-                sb.AppendLine($"\"{b.From}\",\"{b.To}\",{b.Scope}, {b.Completed},{b.Guideline},{b.ConfidenceConeLow},{b.ConfidenceConeHigh}");
+                sb.AppendLine($"\"{b.From}\",\"{b.To}\",{b.Scope},{b.Completed},{b.Guideline},{b.NotPointed},{b.ConfidenceConeLow},{b.ConfidenceConeHigh}");
             });
 
             return sb.ToString();
@@ -46,10 +48,10 @@ namespace AgileTools.Analysers
         {
             var sb = new StringBuilder();
             sb.AppendLine($"BDown result");
-            sb.AppendLine($"From\tTo\tScope\tDone\tGuideline\tConeLow\tConeHigh");
+            sb.AppendLine($"From\tTo\tScope\tDone\tNotPointed\tGuideline\tConeLow\tConeHigh");
             Buckets.ForEach(b =>
             {
-                sb.AppendLine($"{b.From}\t{b.To}\t{b.Scope}\t{b.Completed}\t{b.Guideline}\t{b.ConfidenceConeLow}\t{b.ConfidenceConeHigh}");
+                sb.AppendLine($"{b.From}\t{b.To}\t{b.Scope}\t{b.Completed}\t{b.Guideline}\t{b.NotPointed}\t{b.ConfidenceConeLow}\t{b.ConfidenceConeHigh}");
             });
             return sb.ToString();
         }

@@ -44,6 +44,9 @@ namespace AgileTools.Analysers
             {
                 var bucket = new BurndownResult.Bucket() { From = bucketStartDate, To = bucketEndDate };
                 bucket.Scope = _cards.Sum(p => p.GetFieldAtDate<double?>(CardFieldMeta.Points, bucketEndDate) ?? 0);
+                bucket.NotPointed = _cards.Count(p => 
+                    p.CreationDate <= bucket.To && 
+                    p.GetFieldAtDate<double?>(CardFieldMeta.Points, bucketEndDate) == null);
 
                 if (bucketStartDate >= DateTime.Now)
                     bucket.Completed = null;
@@ -66,7 +69,7 @@ namespace AgileTools.Analysers
 
             // 
             // main trend line
-            var guidelineBuckets = bdownResult.Buckets.Where(b => _targetDate <= b.To);
+            var guidelineBuckets = bdownResult.Buckets.Where(b => _targetDate >= b.From);
             var guidelineStep = guidelineBuckets.Last().Scope / guidelineBuckets.Count(); 
             var currGuideline = guidelineStep;
             guidelineBuckets
@@ -75,9 +78,9 @@ namespace AgileTools.Analysers
 
             // 
             // confidence cone
-            var currBucket = bdownResult.Buckets.First(b => b.From >= DateTime.Now && DateTime.Now <= b.To);
-            var currConfidenceConeLow = _minVelocity + currBucket.Completed;
-            var currConfidenceConeHigh = _maxVelocity + currBucket.Completed;
+            var currBucket = bdownResult.Buckets.First(b => b.From <= DateTime.Now && DateTime.Now <= b.To);
+            var currConfidenceConeLow = _minVelocity + (currBucket.Completed ?? 0);
+            var currConfidenceConeHigh = _maxVelocity + (currBucket.Completed ?? 0);
             bdownResult.Buckets
                 .Where(b => DateTime.Now >= b.From)
                 .OrderBy(b => b.From)
