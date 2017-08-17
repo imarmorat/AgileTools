@@ -52,6 +52,7 @@
   <ItemGroup>
     <Compile Include="AnalyserHelper.cs" />
     <Compile Include="BurndownAnalyser.cs" />
+    <Compile Include="BurndownResult.cs" />
     <Compile Include="CumulativeFlowAnalyser.cs" />
     <Compile Include="CumulativeFlowResult.cs" />
     <Compile Include="ExportableResultBase.cs" />
