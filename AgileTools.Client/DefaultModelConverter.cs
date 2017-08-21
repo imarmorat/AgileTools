@@ -4,6 +4,7 @@ using log4net;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -207,6 +208,10 @@ namespace AgileTools.Client
 
         public Card ConvertCard(dynamic issue, IEnumerable<JiraField> fieldsMeta)
         {
+            _logger.Debug($"Starting conversion of {issue.key}");
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
+
             var mapping = new Dictionary<CardFieldMeta, object>();
             _jiraFieldMapping.ForEach(jf =>
             {
@@ -217,6 +222,9 @@ namespace AgileTools.Client
 
             var card = new Card((string)issue.key, mapping);
             card.History = new List<HistoryItem>( ConvertCardHistory(issue, fieldsMeta) );
+
+            stopwatch.Stop();
+            _logger.Debug($"Conversion of {card.Id} completed in {stopwatch.ElapsedMilliseconds}ms");
 
             return card;
         }

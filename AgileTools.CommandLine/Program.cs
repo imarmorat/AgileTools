@@ -37,16 +37,25 @@ namespace AgileTools.CommandLine
             {
                 Console.Write(":: ");
                 var cmdLine = Console.ReadLine();
-                var errors = (IList<CommandError>)new List<CommandError>();
-                var result = context.CmdManager.ExecuteFromString(cmdLine, ref errors);
 
-                if (errors.Any())
+                try
                 {
-                    Console.WriteLine("Command failed!");
-                    errors.ForEach(e => Console.WriteLine($"error - [{e.Context}] {e.ErrorMessage}"));
+                    var errors = (IList<CommandError>)new List<CommandError>();
+                    var result = context.CmdManager.ExecuteFromString(cmdLine, ref errors);
+
+                    if (errors.Any())
+                    {
+                        Console.WriteLine("Command failed!");
+                        errors.ForEach(e => Console.WriteLine($"error - [{e.Context}] {e.ErrorMessage}"));
+                    }
+                    else
+                        Console.WriteLine(result);
                 }
-                else
-                    Console.WriteLine(result);
+                catch(Exception ex)
+                {
+                    Console.WriteLine($"Command crashed! {ex.Message} - {ex.GetType()}");
+                    _logger.Warn("Command crashed", ex);
+                }
             } while (true);
         }
 

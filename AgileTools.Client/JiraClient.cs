@@ -6,6 +6,8 @@ using RestSharp;
 using RestSharp.Authenticators;
 using System.Net;
 using Newtonsoft.Json;
+using log4net;
+using System.Diagnostics;
 
 namespace AgileTools.Client
 {
@@ -16,6 +18,7 @@ namespace AgileTools.Client
     {
         #region Private
 
+        private static ILog _logger = LogManager.GetLogger(typeof(JiraClient));
         private IRestClient _restClient;
         private string MainRestPrefix = "/rest/api/latest";
         private string AgileRestPrefix = "/rest/agile/latest";
@@ -137,8 +140,15 @@ namespace AgileTools.Client
             var index = 0;
             var total = 0;
             var fields = GetFields();
+            var cards = new List<Card>();
+            var stopWatch = new Stopwatch();
+
             do
             {
+                _logger.Debug($"Executing card fectch query...");
+                stopWatch.Reset();
+                stopWatch.Start();
+
                 var response = ExecuteRequest(
                     $"{MainRestPrefix}/search?jql={query}&expand=changelog&fields=*all,comment&startAt={index}",
                     Method.GET);
@@ -147,8 +157,16 @@ namespace AgileTools.Client
                 total = (int)response.Data.total;
 
                 foreach (var ticket in response.Data.issues)
-                    yield return ModelConverter.ConvertCard(ticket, fields); //ticket;
+                     cards.Add( ModelConverter.ConvertCard(ticket, fields) ); //ticket;
+
+                stopWatch.Stop();
+                _logger.Debug($"Fetched {total} so far; last bacth fetch in {stopWatch.ElapsedMilliseconds}ms");
+
             } while (index < total);
+
+            _logger.Info($"Query fetched {cards.Count} cards");
+
+            return cards;
         }
 
         #region Protected methods
