@@ -22,6 +22,8 @@ namespace AgileTools.Client
         public AuditingJiraClient(string url, IAuthenticator authenticator) :
             base(url, authenticator)
         {
+            if (!Directory.Exists("Audit"))
+                Directory.CreateDirectory("Audit");
         }
 
         protected override dynamic ExecuteRequest(string resource, Method method, IList<HttpStatusCode> expectedCodes, bool throwExceptionIfWrongReturnCode = true)
