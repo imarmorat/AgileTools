@@ -54,21 +54,25 @@
   <ItemGroup>
     <Compile Include="Commands\CommandBase.cs" />
     <Compile Include="Commands\CommandManager.cs" />
+    <Compile Include="Commands\SaveCardsCommand.cs" />
+    <Compile Include="Commands\LoadCardsCommand.cs" />
     <Compile Include="Commands\Modifer\FileExporter.cs" />
     <Compile Include="Commands\GetCommandHelpCommand.cs" />
     <Compile Include="Commands\ICommand.cs" />
     <Compile Include="Commands\ExitCommand.cs" />
     <Compile Include="Commands\Modifer\IResultExporter.cs" />
     <Compile Include="Commands\ListCardsCommand.cs" />
-    <Compile Include="Commands\LoadCardsCommand.cs" />
+    <Compile Include="Commands\FetchCardsCommand.cs" />
     <Compile Include="Commands\MacroCommand.cs" />
     <Compile Include="Commands\Modifer\ExportCommandModifier.cs" />
     <Compile Include="Commands\Modifer\ICommandModifierHandler.cs" />
     <Compile Include="Commands\RunAnalyserCommand.cs" />
+    <Compile Include="Commands\VariableCommands.cs" />
     <Compile Include="Context.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utils.cs" />
+    <Compile Include="VariableManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

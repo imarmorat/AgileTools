@@ -48,7 +48,7 @@ namespace AgileTools.Analysers
         {
             var sb = new StringBuilder();
             sb.AppendLine($"BDown result");
-            sb.AppendLine($"From\tTo\tScope\tDone\tNotPointed\tGuideline\tConeLow\tConeHigh");
+            sb.AppendLine($"From\tTo\tScope\tDone\tGuideline\tNotPointed\tConeLow\tConeHigh");
             Buckets.ForEach(b =>
             {
                 sb.AppendLine($"{b.From}\t{b.To}\t{b.Scope}\t{b.Completed}\t{b.Guideline}\t{b.NotPointed}\t{b.ConfidenceConeLow}\t{b.ConfidenceConeHigh}");

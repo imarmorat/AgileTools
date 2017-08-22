@@ -65,7 +65,7 @@ namespace AgileTools.CommandLine.Commands
 
         public override string CommandName => "macro";
         public override string Description => "allow for macros to be loaded ran recorded, etc.";
-        public override IEnumerable<CommandParameter> Parameters => new List<CommandParameter>
+        public override IEnumerable<CommandParameter> ExpectedParameters => new List<CommandParameter>
         {
             new CommandParameter.StringParameter("action", "", false),
             new CommandParameter.StringParameter("action param", "", true),
@@ -102,9 +102,9 @@ namespace AgileTools.CommandLine.Commands
 
         public override object Run(Context context, IEnumerable<string> parameters, ref IList<CommandError> errors)
         {
-            var action = (string)Parameters.ElementAt(0).Convert(parameters.ElementAt(0));
+            var action = (string)ExpectedParameters.ElementAt(0).Convert(parameters.ElementAt(0));
             var actionParam = parameters.Count() > 1 ?
-                (string)Parameters.ElementAt(1).Convert(parameters.ElementAt(1)) :
+                (string)ExpectedParameters.ElementAt(1).Convert(parameters.ElementAt(1)) :
                 string.Empty;
 
             switch (action.ToLower())

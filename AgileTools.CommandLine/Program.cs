@@ -19,15 +19,23 @@ namespace AgileTools.CommandLine
         static void Main(string[] args)
         {
             var context = new Context();
+            context.VariableManager = new VariableManager();
+            context.VariableManager.Set("now.date", () => DateTime.Now.Date.ToString("dd-MMM-yyyy"));
+            context.VariableManager.Set("now.time", () => DateTime.Now.ToString("HH:mm"));
             context.CmdManager = new CommandManager(context);
             context.CmdManager.KnownCommands = new List<ICommand>
                 {
                     new GetCommandHelpCommand(),
-                    new LoadCardsCommand(),
+                    new FetchCardsCommand(),
                     new ListCardsCommand(),
                     new ExitCommand(),
                     new RunAnalyserCommand(),
-                    new MacroCommand(context.CmdManager) // I dont like my design, looks dodgy. change that later. context is passed around so should use it to access cmdmanager
+                    new MacroCommand(context.CmdManager), // I dont like my design, looks dodgy. change that later. context is passed around so should use it to access cmdmanager
+                    new LoadCardsCommand(),
+                    new SaveCardsCommand(),
+                    new SetVariableCommand(),
+                    new UnSetVariableCommand(),
+                    new ShowVariableCommand()
                 };
 
             PrintIntro();

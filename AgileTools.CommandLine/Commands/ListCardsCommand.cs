@@ -9,7 +9,7 @@ namespace AgileTools.CommandLine.Commands
     {
         public override string CommandName => "listCards";
         public override string Description => "lists cards that are in the cache";
-        public override IEnumerable<CommandParameter> Parameters => new List<CommandParameter>();
+        public override IEnumerable<CommandParameter> ExpectedParameters => new List<CommandParameter>();
 
         public override object Run(Context context, IEnumerable<string> parameters, ref IList<CommandError> errors)
         {

@@ -18,6 +18,7 @@ namespace AgileTools.CommandLine.Commands
 
         private Context _context;
         private IEnumerable<ICommandModifierHandler> _modifierHandlers;
+        private const string VariablePattern = @"(?<container>\${(?<varname>[a-zA-Z0-9]+)})";
 
         #endregion
 
@@ -59,11 +60,11 @@ namespace AgileTools.CommandLine.Commands
             {
                 modifierHandler = modifers.ElementAt(0);
                 var modifierIndex = parameters.IndexOf(modifierHandler.ModifierKey);
-                modifierParams = parameters.Skip(modifierIndex + 1);
+                modifierParams = ParseParameter( parameters.Skip(modifierIndex + 1).ToList(),  _context.VariableManager );
                 commandParams = parameters.Take(modifierIndex).ToList();
             }
             else
-                commandParams = parameters;
+                commandParams = ParseParameter(parameters, _context.VariableManager);
 
             var output = command.Run(_context, commandParams, ref errors);
 
@@ -73,6 +74,37 @@ namespace AgileTools.CommandLine.Commands
                 errors.Add(new CommandError("command modifiger", "Error found during command execution, command modifier skipped"));
             
             NotifyCmdExecuted(command, parameters);
+            return output;
+        }
+
+        /// <summary>
+        /// Look for variable and change parameter values accordingly
+        /// </summary>
+        /// <param name="parameters"></param>
+        /// <returns></returns>
+        public static IEnumerable<string> ParseParameter(IList<string> parameters, VariableManager varManager)
+        {
+            foreach (var param in parameters)
+                yield return ParseParameter(param, varManager);
+        }
+
+        /// <summary>
+        /// Parse a parameter and replaces any mention of variable with expected value
+        /// </summary>
+        /// <param name="param"></param>
+        /// <returns></returns>
+        public static string ParseParameter(string param, VariableManager varManager)
+        {
+            var output = param;
+            var matches = Regex.Matches(param, VariablePattern);
+            foreach(Match match in matches)
+            {
+                var var = match.Groups["varname"].Value;
+                var container = match.Groups["container"].Value;
+                var varValue = varManager.Get(var);
+                output = output.Replace(container, varValue);
+            }
+
             return output;
         }
 

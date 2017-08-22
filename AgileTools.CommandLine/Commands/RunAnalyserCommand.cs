@@ -21,7 +21,7 @@ namespace AgileTools.CommandLine.Commands
 
         public override string CommandName => "analyse";
         public override string Description => "";
-        public override IEnumerable<CommandParameter> Parameters => new List<CommandParameter>
+        public override IEnumerable<CommandParameter> ExpectedParameters => new List<CommandParameter>
         {
             new CommandParameter.StringParameter("analyser name", "", false)
         };
@@ -61,7 +61,7 @@ namespace AgileTools.CommandLine.Commands
     {
         public override string CommandName => "velocity";
         public override string Description => "";
-        public override IEnumerable<CommandParameter> Parameters => new List<CommandParameter>
+        public override IEnumerable<CommandParameter> ExpectedParameters => new List<CommandParameter>
         {
             new CommandParameter.DateTimeParameter("startDate", ""),
             new CommandParameter.DateTimeParameter("endDate", ""),
@@ -76,9 +76,9 @@ namespace AgileTools.CommandLine.Commands
                 return null;
             }
 
-            var startDate = (DateTime)Parameters.ElementAt(0).Convert(parameters.ElementAt(0));
-            var endDate = (DateTime)Parameters.ElementAt(1).Convert(parameters.ElementAt(1));
-            var bucketSize = new TimeSpan((int)Parameters.ElementAt(2).Convert(parameters.ElementAt(2)), 0, 0, 0);
+            var startDate = (DateTime)ExpectedParameters.ElementAt(0).Convert(parameters.ElementAt(0));
+            var endDate = (DateTime)ExpectedParameters.ElementAt(1).Convert(parameters.ElementAt(1));
+            var bucketSize = new TimeSpan((int)ExpectedParameters.ElementAt(2).Convert(parameters.ElementAt(2)), 0, 0, 0);
 
             var velocityAnalyser = new VelocityAnalyser(context.LoadedCards, startDate, endDate, bucketSize);
             return velocityAnalyser.Analyse().ToString();
@@ -92,7 +92,7 @@ namespace AgileTools.CommandLine.Commands
     {
         public override string CommandName => "ruleChecker";
         public override string Description => "";
-        public override IEnumerable<CommandParameter> Parameters => new List<CommandParameter>();
+        public override IEnumerable<CommandParameter> ExpectedParameters => new List<CommandParameter>();
 
         public override object Run(Context context, IEnumerable<string> parameters, ref IList<CommandError> errors)
         {
@@ -115,7 +115,7 @@ namespace AgileTools.CommandLine.Commands
         public override string CommandName => "cumulFlow";
         public override string Description => "Cumulative Flow analysis helps visualizing bottlenecks and cycle time";
 
-        public override IEnumerable<CommandParameter> Parameters => new List<CommandParameter>
+        public override IEnumerable<CommandParameter> ExpectedParameters => new List<CommandParameter>
         {
             new CommandParameter.DateTimeParameter("startDate", ""),
             new CommandParameter.DateTimeParameter("endDate", ""),
@@ -131,11 +131,11 @@ namespace AgileTools.CommandLine.Commands
                 return null;
             }
 
-            var startDate = (DateTime)Parameters.ElementAt(0).Convert(parameters.ElementAt(0));
-            var endDate = (DateTime)Parameters.ElementAt(1).Convert(parameters.ElementAt(1));
-            var bucketSize = new TimeSpan((int)Parameters.ElementAt(2).Convert(parameters.ElementAt(2)), 0, 0, 0);
-            var statusList = Parameters.Count() == 4 ?
-                ExtractStatusList(context, (string)Parameters.ElementAt(3).Convert(parameters.ElementAt(3))) :
+            var startDate = (DateTime)ExpectedParameters.ElementAt(0).Convert(parameters.ElementAt(0));
+            var endDate = (DateTime)ExpectedParameters.ElementAt(1).Convert(parameters.ElementAt(1));
+            var bucketSize = new TimeSpan((int)ExpectedParameters.ElementAt(2).Convert(parameters.ElementAt(2)), 0, 0, 0);
+            var statusList = ExpectedParameters.Count() == 4 ?
+                ExtractStatusList(context, (string)ExpectedParameters.ElementAt(3).Convert(parameters.ElementAt(3))) :
                 null;
 
             var cmAnalyser = new CumulativeFlowAnalyser(context.JiraService, context.LoadedCards, statusList, bucketSize, startDate, endDate);
@@ -157,7 +157,7 @@ namespace AgileTools.CommandLine.Commands
         public override string CommandName => "bdown";
         public override string Description => "Burndown analysis";
 
-        public override IEnumerable<CommandParameter> Parameters => new List<CommandParameter>
+        public override IEnumerable<CommandParameter> ExpectedParameters => new List<CommandParameter>
         {
             new CommandParameter.DateTimeParameter("startDate", ""),
             new CommandParameter.DateTimeParameter("endDate", ""),
@@ -169,18 +169,18 @@ namespace AgileTools.CommandLine.Commands
 
         public override object Run(Context context, IEnumerable<string> parameters, ref IList<CommandError> errors)
         {
-            if (parameters.Count() != 3)
+            if (parameters.Count() != ExpectedParameters.Count())
             {
-                errors.Add(new CommandError("parameter count", "expecting 3 parameters"));
+                errors.Add(new CommandError("parameter count", $"expecting {ExpectedParameters.Count()} parameters"));
                 return null;
             }
 
-            var startDate = (DateTime)Parameters.ElementAt(0).Convert(parameters.ElementAt(0));
-            var endDate = (DateTime)Parameters.ElementAt(1).Convert(parameters.ElementAt(1));
-            var targetDate = (DateTime)Parameters.ElementAt(2).Convert(parameters.ElementAt(2));
-            var bucketSize = new TimeSpan((int)Parameters.ElementAt(3).Convert(parameters.ElementAt(3)), 0, 0, 0);
-            var minVelocity = (double)Parameters.ElementAt(4).Convert(parameters.ElementAt(4));
-            var maxVelocity = (double)Parameters.ElementAt(5).Convert(parameters.ElementAt(5));
+            var startDate = (DateTime)ExpectedParameters.ElementAt(0).Convert(parameters.ElementAt(0));
+            var endDate = (DateTime)ExpectedParameters.ElementAt(1).Convert(parameters.ElementAt(1));
+            var targetDate = (DateTime)ExpectedParameters.ElementAt(2).Convert(parameters.ElementAt(2));
+            var bucketSize = new TimeSpan((int)ExpectedParameters.ElementAt(3).Convert(parameters.ElementAt(3)), 0, 0, 0);
+            var minVelocity = (double)ExpectedParameters.ElementAt(4).Convert(parameters.ElementAt(4));
+            var maxVelocity = (double)ExpectedParameters.ElementAt(5).Convert(parameters.ElementAt(5));
 
             var cmAnalyser = new BurndownAnalyser(context.LoadedCards, startDate, endDate, targetDate, bucketSize, minVelocity, maxVelocity);
             return cmAnalyser.Analyse();

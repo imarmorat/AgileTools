@@ -81,6 +81,9 @@ namespace AgileTools.Client
             if (match == null)
             {
                 var sprint = _client.GetSprint(sprintId);
+                if (sprint == null)
+                    return null;
+
                 _sprintCache.Add(sprint);
                 _logger.Debug($"Caching sprint {sprint}");
                 return sprint;

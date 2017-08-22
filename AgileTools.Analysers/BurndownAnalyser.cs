@@ -69,7 +69,7 @@ namespace AgileTools.Analysers
 
             // 
             // main trend line
-            var guidelineBuckets = bdownResult.Buckets.Where(b => _targetDate >= b.From);
+            var guidelineBuckets = bdownResult.Buckets.Where(b => _targetDate <= b.To);
             var guidelineStep = guidelineBuckets.Last().Scope / guidelineBuckets.Count(); 
             var currGuideline = guidelineStep;
             guidelineBuckets

@@ -10,7 +10,7 @@ namespace AgileTools.CommandLine.Commands
         public override string CommandName => "help";
         public override string Description => "gives help on available commands";
         public enum Level {  Summary = 's', Medium = 'd', Full = 'f' };
-        public override IEnumerable<CommandParameter> Parameters => new List<CommandParameter>
+        public override IEnumerable<CommandParameter> ExpectedParameters => new List<CommandParameter>
         {
             new CommandParameter.StringParameter("command name", "command you need help on; if not specified, all commands are displayed", true),
         };

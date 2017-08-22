@@ -13,9 +13,9 @@ namespace AgileTools.CommandLine.Commands
 
         public abstract string Description { get; }
 
-        public abstract IEnumerable<CommandParameter> Parameters { get; }
+        public abstract IEnumerable<CommandParameter> ExpectedParameters { get; }
 
-        public abstract object Run(Context context, IEnumerable<string> parameters, ref IList<CommandError> errors);
+        public abstract object Run(Context context, IEnumerable<string> rawParameters, ref IList<CommandError> errors);
 
         public virtual string GetUsage(GetCommandHelpCommand.Level level)
         {
@@ -28,13 +28,13 @@ namespace AgileTools.CommandLine.Commands
 
                 case GetCommandHelpCommand.Level.Medium:
                     sb.Append($"{CommandName} - ");
-                    Parameters.ForEach(p => sb.Append($"{p.Name} "));
+                    ExpectedParameters.ForEach(p => sb.Append($"{p.Name} "));
                     break;
 
                 case GetCommandHelpCommand.Level.Full:
                     sb.AppendLine($"{CommandName} - {Description}");
                     sb.AppendLine("Parameters:");
-                    Parameters.ForEach(p => sb.AppendLine($"\t{p.Name} - {p.Description}"));
+                    ExpectedParameters.ForEach(p => sb.AppendLine($"\t{p.Name} - {p.Description}"));
                     break;
 
                 default:

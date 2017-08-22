@@ -15,6 +15,8 @@ namespace AgileTools.CommandLine
 
         public CommandManager CmdManager { get; set; }
 
+        public VariableManager VariableManager { get; set; }
+
         public Context()
         {
             LoadedCards = new List<Card>();

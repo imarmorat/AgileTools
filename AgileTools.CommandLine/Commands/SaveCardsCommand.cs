@@ -8,13 +8,13 @@ using AgileTools.Core.Models;
 
 namespace AgileTools.CommandLine.Commands
 {
-    public class LoadCardsCommand : CommandBase
+    public class SaveCardsCommand : CommandBase
     {
-        public override string CommandName => "loadCards";
-        public override string Description => "load card from a file. Cache is cleared beforehand";
+        public override string CommandName => "saveCards";
+        public override string Description => "Save card into a file.";
         public override IEnumerable<CommandParameter> ExpectedParameters => new List<CommandParameter>
         {
-            new CommandParameter.StringParameter("filename", "file that contains the cards", false)
+            new CommandParameter.StringParameter("filename", "File where cards will be stored", false)
         };
 
         public override object Run(Context context, IEnumerable<string> parameters, ref IList<CommandError> errors)
@@ -27,16 +27,8 @@ namespace AgileTools.CommandLine.Commands
             }
 
             var filename = parameters.ElementAt(0).Trim();
-
-            if (!File.Exists(filename))
-                throw new Exception($"Cannot load cards as file {filename} not found");
-
-            var content = File.ReadAllText(filename);
-            var cards = JsonConvert.DeserializeObject<List<Card>>(content);
-
-            context.LoadedCards.Clear();
-            foreach(var card in cards)
-                context.LoadedCards.Add(card);
+            var content = JsonConvert.SerializeObject(context.LoadedCards);
+            File.WriteAllText(filename, content);
 
             return $"Fetched {context.LoadedCards.Count()} cards into cache.";
         }
