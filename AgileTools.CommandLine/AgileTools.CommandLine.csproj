@@ -54,6 +54,7 @@
   <ItemGroup>
     <Compile Include="Commands\CommandBase.cs" />
     <Compile Include="Commands\CommandManager.cs" />
+    <Compile Include="Commands\ConnectToSourceCommand.cs" />
     <Compile Include="Commands\SaveCardsCommand.cs" />
     <Compile Include="Commands\LoadCardsCommand.cs" />
     <Compile Include="Commands\Modifer\FileExporter.cs" />

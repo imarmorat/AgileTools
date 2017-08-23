@@ -39,7 +39,7 @@ namespace AgileTools.CommandLine
                 };
 
             PrintIntro();
-            context.JiraService = InitCardManagerService(args.Length == 1 ? args[0] : null);
+            context.CardService = InitCardManagerService(args.Length == 1 ? args[0] : null);
 
             do
             {
@@ -71,27 +71,25 @@ namespace AgileTools.CommandLine
         /// Initialize the card manager service
         /// </summary>
         /// <returns></returns>
-        private static JiraService InitCardManagerService(string cardClientUrl)
+        private static ICardManagerClient InitCardManagerService(string cardClientUrl)
         {
             Console.Write("user: ");
             var userName = Console.ReadLine();
             Console.Write("pwd: ");
             var pwd = Utils.ReadPasswordFromConsole();
 
-            var jiraClient = (ICardManagerClient)new AuditingJiraClient(
+            var cardClient = (ICardManagerClient)new AuditingJiraClient(
                 cardClientUrl ?? "http://10.0.75.1:8080", 
                 userName, 
                 pwd);
 
-            jiraClient = new CachedJiraClient(jiraClient);
-            jiraClient.ModelConverter = new DefaultModelConverter(jiraClient);
-            var jiraService = new JiraService(jiraClient);
-            jiraService.Init();
+            cardClient = new CachedJiraClient(cardClient);
+            cardClient.ModelConverter = new DefaultModelConverter(cardClient);
 
-            var user = jiraClient.GetUser(userName);
+            var user = cardClient.GetUser(userName);
             Console.WriteLine($"\r\nWelcome {user.FullName} ({user.Id} / {user.Email})");
 
-            return jiraService;
+            return cardClient;
         }
 
         private static void PrintIntro()

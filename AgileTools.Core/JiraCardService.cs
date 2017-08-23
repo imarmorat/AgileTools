@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace AgileTools.Core
 {
-    public class JiraService
+    public class JiraCardService
     {
         #region Private 
 
@@ -24,7 +24,7 @@ namespace AgileTools.Core
         /// Constructor
         /// </summary>
         /// <param name="jiraClient"></param>
-        public JiraService(ICardManagerClient jiraClient)
+        public JiraCardService(ICardManagerClient jiraClient)
         {
             _jiraClient = jiraClient != null ? jiraClient : throw new ArgumentNullException(nameof(jiraClient));
         }

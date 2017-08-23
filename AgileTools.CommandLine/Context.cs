@@ -9,7 +9,22 @@ namespace AgileTools.CommandLine
 {
     public class Context
     {
-        public JiraService JiraService { get; set; }
+        private ICardManagerClient _cardService;
+
+        public event EventHandler CardServiceChanged;
+
+        public ICardManagerClient CardService
+        {
+            get => _cardService;
+            set
+            {
+                if (value == null)
+                    throw new ArgumentNullException();
+
+                _cardService = value;
+                CardServiceChanged?.Invoke(this, null);
+            }
+        }
 
         public IList<Card> LoadedCards { get; set; }
 
@@ -20,6 +35,10 @@ namespace AgileTools.CommandLine
         public Context()
         {
             LoadedCards = new List<Card>();
+        }
+
+        private void NotifyCardServiceChanged()
+        {
         }
     }
 }

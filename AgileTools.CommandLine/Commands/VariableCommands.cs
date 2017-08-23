@@ -19,7 +19,7 @@ namespace AgileTools.CommandLine.Commands
         public override object Run(Context context, IEnumerable<string> parameters, ref IList<CommandError> errors)
         {
             var varName = (string) ExpectedParameters.ElementAt(0).Convert(parameters.ElementAt(0));
-            var varValue = (string) ExpectedParameters.ElementAt(1).Convert(parameters.ElementAt(0));
+            var varValue = (string) ExpectedParameters.ElementAt(1).Convert(parameters.ElementAt(1));
 
             context.VariableManager.Set(varName, varValue);
             return "Variable set";

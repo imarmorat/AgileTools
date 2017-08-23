@@ -69,7 +69,7 @@ namespace AgileTools.Analysers
 
             // 
             // main trend line
-            var guidelineBuckets = bdownResult.Buckets.Where(b => _targetDate <= b.To);
+            var guidelineBuckets = bdownResult.Buckets.Where(b => _targetDate >= b.From);
             var guidelineStep = guidelineBuckets.Last().Scope / guidelineBuckets.Count(); 
             var currGuideline = guidelineStep;
             guidelineBuckets
@@ -82,7 +82,7 @@ namespace AgileTools.Analysers
             var currConfidenceConeLow = _minVelocity + (currBucket.Completed ?? 0);
             var currConfidenceConeHigh = _maxVelocity + (currBucket.Completed ?? 0);
             bdownResult.Buckets
-                .Where(b => DateTime.Now >= b.From)
+                .Where(b => DateTime.Now <= b.To)
                 .OrderBy(b => b.From)
                 .ForEach(b =>
                     {

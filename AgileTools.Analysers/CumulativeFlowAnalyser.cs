@@ -19,7 +19,7 @@ namespace AgileTools.Analysers
         private DateTime _dateFrom;
         private DateTime _dateTo;
         private TimeSpan _bucketSize;
-        private JiraService _jiraService;
+        private ICardManagerClient _cardClient;
         private IEnumerable<CardStatus> _statusesFilter;
 
         #endregion
@@ -29,14 +29,14 @@ namespace AgileTools.Analysers
         /// <summary>
         /// Constructor
         /// </summary>
-        /// <param name="jiraService">jiraService used to get the related tickets</param>
+        /// <param name="cardClient">jiraService used to get the related tickets</param>
         /// <param name="tickets">list of tickets that will be analysed</param>
         /// <param name="bucketSize">size of the bucket. if not specifed, set to a day</param>
         /// <param name="from">start date - if not specified, taking the earliest created ticket</param>
         /// <param name="to">end date - if not specified, taking the latest ticket closure</param>
-        public CumulativeFlowAnalyser(JiraService jiraService, IEnumerable<Card> tickets, IEnumerable<CardStatus> statusesFilter, TimeSpan? bucketSize = null,DateTime? from = null, DateTime? to = null)
+        public CumulativeFlowAnalyser(ICardManagerClient cardClient, IEnumerable<Card> tickets, IEnumerable<CardStatus> statusesFilter, TimeSpan? bucketSize = null,DateTime? from = null, DateTime? to = null)
         {
-            _jiraService = jiraService ?? throw new ArgumentNullException(nameof(jiraService));
+            _cardClient = cardClient ?? throw new ArgumentNullException(nameof(cardClient));
             _cards = tickets;
             _statusesFilter = statusesFilter;
             _dateFrom = from ?? _cards.Min(t => t.CreationDate);
@@ -62,7 +62,7 @@ namespace AgileTools.Analysers
                     FlowData = new Dictionary<CardStatus, double>()
                 };
 
-                var statuses = _statusesFilter.Any() ? _statusesFilter : _jiraService.Statuses;
+                var statuses = _statusesFilter.Any() ? _statusesFilter : _cardClient.GetStatuses();
 
                 statuses.ForEach(s =>
                 {

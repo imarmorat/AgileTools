@@ -25,7 +25,7 @@ namespace AgileTools.CommandLine.Commands
 
             var query = parameters.ElementAt(0).Trim('\"');
 
-            var cards = context.JiraService.GetTickets(query);
+            var cards = context.CardService.GetTickets(query);
             context.LoadedCards.Clear();
             foreach (var card in cards)
                 context.LoadedCards.Add(card);

@@ -20,7 +20,7 @@ namespace AgileTools.Sandbox
             var jiraClient = (ICardManagerClient) new JiraClient("http://10.0.75.1:8080", "admin", "123");
             jiraClient = new CachedJiraClient(jiraClient);
             jiraClient.ModelConverter = new DefaultModelConverter(jiraClient);
-            var jiraService = new JiraService(jiraClient);
+            var jiraService = new JiraCardService(jiraClient);
             jiraService.Init();
 
             _logger.Info("Start loading tickets");
