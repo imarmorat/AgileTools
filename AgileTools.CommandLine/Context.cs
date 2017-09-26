@@ -13,6 +13,8 @@ namespace AgileTools.CommandLine
 
         public event EventHandler CardServiceChanged;
 
+        public IList<Program.CardManagerConfig> AvailableCardServices { get; set; }
+
         public ICardManagerClient CardService
         {
             get => _cardService;
@@ -35,10 +37,7 @@ namespace AgileTools.CommandLine
         public Context()
         {
             LoadedCards = new List<Card>();
-        }
-
-        private void NotifyCardServiceChanged()
-        {
+            AvailableCardServices = new List<Program.CardManagerConfig>();
         }
     }
 }

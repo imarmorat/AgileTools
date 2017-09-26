@@ -9,10 +9,13 @@ using AgileTools.Client;
 using AgileTools.Core.Models;
 using System.Text.RegularExpressions;
 using log4net;
+using System.IO;
+using Newtonsoft.Json;
+using System.Reflection;
 
 namespace AgileTools.CommandLine
 {
-    class Program
+    public class Program
     {
         private static ILog _logger = LogManager.GetLogger(typeof(Program));
 
@@ -35,15 +38,17 @@ namespace AgileTools.CommandLine
                     new SaveCardsCommand(),
                     new SetVariableCommand(),
                     new UnSetVariableCommand(),
-                    new ShowVariableCommand()
+                    new ShowVariableCommand(),
+                    new ConnectToSourceCommand(),
+                    new ListSourceCommand()
                 };
+            context.AvailableCardServices = LoadCardServices("CardServicesConfig.json");
 
             PrintIntro();
-            context.CardService = InitCardManagerService(args.Length == 1 ? args[0] : null);
 
             do
             {
-                Console.Write(":: ");
+                Console.Write((context.CardService != null ? context.CardService.Id : "(/!\\ no card source selected /!\\)") +  " :: ");
                 var cmdLine = Console.ReadLine();
 
                 try
@@ -67,29 +72,31 @@ namespace AgileTools.CommandLine
             } while (true);
         }
 
-        /// <summary>
-        /// Initialize the card manager service
-        /// </summary>
-        /// <returns></returns>
-        private static ICardManagerClient InitCardManagerService(string cardClientUrl)
+        private static IList<CardManagerConfig> LoadCardServices(string filename)
         {
-            Console.Write("user: ");
-            var userName = Console.ReadLine();
-            Console.Write("pwd: ");
-            var pwd = Utils.ReadPasswordFromConsole();
+            if (!File.Exists(filename))
+                throw new ArgumentException($"File [{filename}] does not exist");
 
-            var cardClient = (ICardManagerClient)new AuditingJiraClient(
-                cardClientUrl ?? "http://10.0.75.1:8080", 
-                userName, 
-                pwd);
+            var content = File.ReadAllText(filename);
+            var sources = JsonConvert.DeserializeObject<IList<CardManagerConfig>>(content);
+            return sources;
+        }
 
-            cardClient = new CachedJiraClient(cardClient);
-            cardClient.ModelConverter = new DefaultModelConverter(cardClient);
+        public static ICardManagerClient CreateSourceFromConfig(CardManagerConfig source)
+        {
+            var assembly = Assembly.LoadFrom(source.AssemblyName);
+            var factory = (ICardManagerFactory) assembly.CreateInstance(source.FactoryClassName);
+            if (factory == null)
+                throw new Exception($"CardService from assembly [{source.AssemblyName}] and class [{source.FactoryClassName}] is a card service factory (type is {factory.GetType()}");
+            return factory.CreateClient();
+        }
 
-            var user = cardClient.GetUser(userName);
-            Console.WriteLine($"\r\nWelcome {user.FullName} ({user.Id} / {user.Email})");
-
-            return cardClient;
+        public class CardManagerConfig
+        {
+            public string Id { get; set; }
+            public string AssemblyName { get; set; }
+            public string FactoryClassName { get; set; }
+            public Dictionary<string, string> Parameters { get; set; }
         }
 
         private static void PrintIntro()

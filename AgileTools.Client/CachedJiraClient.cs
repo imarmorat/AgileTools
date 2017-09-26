@@ -27,7 +27,11 @@ namespace AgileTools.Client
 
         #endregion
 
+        public string Id { get => _client.Id; set => _client.Id = value; }
+
         public IModelConverter ModelConverter { get => _client.ModelConverter; set => _client.ModelConverter = value; }
+
+        public IList<string> InitParameters => _client.InitParameters;
 
         /// <summary>
         /// Constructor
@@ -39,6 +43,15 @@ namespace AgileTools.Client
             _cardCache = new List<Card>();
             _sprintCache = new List<Sprint>();
             _userCache = new List<User>();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="initParam"></param>
+        public void Init(Dictionary<string,string> initParam)
+        {
+            _client.Init(initParam);
         }
 
         /// <summary>
@@ -155,5 +168,9 @@ namespace AgileTools.Client
             return user;
         }
 
+        public bool TryCheckConnection()
+        {
+            return _client.TryCheckConnection();
+        }
     }
 }

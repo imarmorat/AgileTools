@@ -24,37 +24,51 @@ namespace AgileTools.Client
         private string AgileRestPrefix = "/rest/agile/latest";
         private IModelConverter _modelConverter;
         private IList<HttpStatusCode> _allowedResponseStatusCode = new List<HttpStatusCode> { HttpStatusCode.OK, HttpStatusCode.NotFound };
-        
+
         #endregion
+
+        public class JiraClientInitParam : ICardManagerInitParameters
+        {
+            public string Url { get; set; }
+            public string User { get; set; }
+            public string Pwd { get; set; }
+        }
+
+        public string Id { get; set; }
 
         public IModelConverter ModelConverter {
             get => _modelConverter ?? throw new Exception("Model Converter not set");
             set => _modelConverter = value ?? throw new ArgumentNullException("ModelConverter");
         }
 
+        public IList<string> InitParameters => new List<string> { "Url", "User", "Pwd" };
+
         /// <summary>
-        /// Constructor
+        /// 
         /// </summary>
-        public JiraClient(string url, string user, string pwd) :
-            this(url, new HttpBasicAuthenticator(user,pwd))
+        /// <param name="initParam"></param>
+        public void Init(Dictionary<string, string> initParam)
         {
+            if (!initParam.ContainsKey("Url") || string.IsNullOrEmpty(initParam["Url"]))
+                throw new ArgumentException("Url parameter missing");
+
+            if (!initParam.ContainsKey("User") || string.IsNullOrEmpty(initParam["User"]))
+                throw new ArgumentException("User parameter missing");
+
+            if (!initParam.ContainsKey("Pwd") || string.IsNullOrEmpty(initParam["Pwd"]))
+                throw new ArgumentException("Pwd parameter missing");
+
+            var authenticator = new HttpBasicAuthenticator(initParam["Url"], initParam["Pwd"]);
+            _restClient = new RestClient(initParam["Url"]) { Authenticator = authenticator };
+
+            _restClient.AddHandler("application/json", new JsonDeserializer());
         }
 
         /// <summary>
-        /// Constructor
+        /// 
         /// </summary>
-        /// <param name="url"></param>
-        /// <param name="authenticator"></param>
-        public JiraClient(string url, IAuthenticator authenticator)
+        public JiraClient()
         {
-            if (string.IsNullOrEmpty(url)) throw new ArgumentNullException(nameof(url));
-
-            _restClient = new RestClient(url)
-            {
-                Authenticator = authenticator ?? throw new ArgumentNullException(nameof(authenticator)),
-            };
-
-            _restClient.AddHandler("application/json", new JsonDeserializer());
         }
 
         /// <summary>
@@ -167,6 +181,20 @@ namespace AgileTools.Client
             _logger.Info($"Query fetched {cards.Count} cards");
 
             return cards;
+        }
+
+        public bool TryCheckConnection()
+        {
+            try
+            {
+                var output = ExecuteRequest($"{MainRestPrefix}/serverinfo", Method.GET);
+                return true;
+            }
+            catch(Exception ex)
+            {
+                _logger.Error($"Connection checking failed", ex);
+                return false;
+            }
         }
 
         #region Protected methods

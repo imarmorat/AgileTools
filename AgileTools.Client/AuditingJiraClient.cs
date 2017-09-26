@@ -14,13 +14,8 @@ namespace AgileTools.Client
 {
     public class AuditingJiraClient : JiraClient
     {
-        public AuditingJiraClient(string url, string user, string pwd) :
-            base(url, user, pwd)
-        {
-        }
-
-        public AuditingJiraClient(string url, IAuthenticator authenticator) :
-            base(url, authenticator)
+        public AuditingJiraClient() :
+            base()
         {
             if (!Directory.Exists("Audit"))
                 Directory.CreateDirectory("Audit");

@@ -17,14 +17,13 @@ namespace AgileTools.Sandbox
 
         static void Main(string[] args)
         {
-            var jiraClient = (ICardManagerClient) new JiraClient("http://10.0.75.1:8080", "admin", "123");
+            var jiraClient = (ICardManagerClient)new JiraClient();
+            //jiraClient.Init(new JiraClient.JiraClientInitParam { Url = "http://10.0.75.1:8080", User = "admin", Pwd = "123" });
             jiraClient = new CachedJiraClient(jiraClient);
             jiraClient.ModelConverter = new DefaultModelConverter(jiraClient);
-            var jiraService = new JiraCardService(jiraClient);
-            jiraService.Init();
 
             _logger.Info("Start loading tickets");
-            var cards = jiraService.GetTickets("project = \"STP\"").ToList();
+            var cards = jiraClient.GetTickets("project = \"STP\"").ToList();
             _logger.Debug($"Found {cards.Count} tickets");
 
             var analysers = new List<IAnalyser<object>>

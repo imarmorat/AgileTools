@@ -54,6 +54,7 @@
   <ItemGroup>
     <Compile Include="Commands\CommandBase.cs" />
     <Compile Include="Commands\CommandManager.cs" />
+    <Compile Include="Commands\ListSourceCommand.cs" />
     <Compile Include="Commands\ConnectToSourceCommand.cs" />
     <Compile Include="Commands\SaveCardsCommand.cs" />
     <Compile Include="Commands\LoadCardsCommand.cs" />
@@ -77,6 +78,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="CardServicesConfig.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

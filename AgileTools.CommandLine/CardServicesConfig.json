@@ -1,0 +1,11 @@
+﻿[
+    {
+        "Id": "jira-test",
+        "AssemblyName": "AgileTools.Client.dll",
+        "FactoryClassName": "AgileTools.Client.JiraCardManagerFactory",
+        "Parameters": {
+            "Url": "http://blabla",
+            "User": "tylerdurden"
+        }
+    }
+]

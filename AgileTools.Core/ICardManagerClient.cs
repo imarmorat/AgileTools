@@ -5,6 +5,12 @@ namespace AgileTools.Core
 {
     public interface ICardManagerClient
     {
+        string  Id { get; set; }
+
+        IList<string> InitParameters { get; }
+
+        void Init(Dictionary<string, string> initParams);
+
         IModelConverter ModelConverter { get; set; }
 
         IEnumerable<CardStatus> GetStatuses();
@@ -22,5 +28,7 @@ namespace AgileTools.Core
         CardStatus GetStatus(string statusId);
 
         User GetUser(string userId);
+
+        bool TryCheckConnection();
     }
 }

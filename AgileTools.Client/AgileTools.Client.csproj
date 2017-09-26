@@ -56,6 +56,8 @@
     <Compile Include="AuditingJiraClient.cs" />
     <Compile Include="CachedJiraClient.cs" />
     <Compile Include="DefaultModelConverter.cs" />
+    <Compile Include="ICardManagerFactory.cs" />
+    <Compile Include="JiraCardManagerFactory.cs" />
     <Compile Include="JiraClient.cs" />
     <Compile Include="JsonDeserializer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

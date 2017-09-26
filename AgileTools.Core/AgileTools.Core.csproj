@@ -52,7 +52,7 @@
   <ItemGroup>
     <Compile Include="IAnalyser.cs" />
     <Compile Include="ICardManagerClient.cs" />
-    <Compile Include="JiraCardService.cs" />
+    <Compile Include="ICardManagerInitParameters.cs" />
     <Compile Include="ListExtension.cs" />
     <Compile Include="Models\CardResolution.cs" />
     <Compile Include="Models\CardStatus.cs" />
