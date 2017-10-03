@@ -187,7 +187,7 @@ namespace AgileTools.Client
         {
             try
             {
-                var output = ExecuteRequest($"{MainRestPrefix}/serverinfo", Method.GET);
+                var output = ExecuteRequest($"{MainRestPrefix}/serverInfo", Method.GET);
                 return true;
             }
             catch(Exception ex)
