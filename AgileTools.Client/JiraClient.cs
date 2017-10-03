@@ -58,7 +58,7 @@ namespace AgileTools.Client
             if (!initParam.ContainsKey("Pwd") || string.IsNullOrEmpty(initParam["Pwd"]))
                 throw new ArgumentException("Pwd parameter missing");
 
-            var authenticator = new HttpBasicAuthenticator(initParam["Url"], initParam["Pwd"]);
+            var authenticator = new HttpBasicAuthenticator(initParam["User"], initParam["Pwd"]);
             _restClient = new RestClient(initParam["Url"]) { Authenticator = authenticator };
 
             _restClient.AddHandler("application/json", new JsonDeserializer());
