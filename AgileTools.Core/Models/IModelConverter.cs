@@ -9,5 +9,6 @@ namespace AgileTools.Core.Models
         CardStatus ConvertStatus(dynamic status);
         User ConvertUser(dynamic data);
         Sprint ConvertSprint(dynamic sprint);
+        Release ConvertRelease(dynamic data);
     }
 }

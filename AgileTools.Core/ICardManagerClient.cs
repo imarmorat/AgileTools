@@ -30,5 +30,7 @@ namespace AgileTools.Core
         User GetUser(string userId);
 
         bool TryCheckConnection();
+
+        Release GetRelease(string releaseId);
     }
 }

@@ -206,6 +206,33 @@ namespace AgileTools.Client
                 };
         }
 
+//        EXAMPLE
+//{
+//    "self": "http://www.example.com/jira/rest/api/2/version/10000",
+//    "id": "10000",
+//    "description": "An excellent version",
+//    "name": "New Version 1",
+//    "archived": false,
+//    "released": true,
+//    "releaseDate": "2010-07-06",
+//    "overdue": true,
+//    "userReleaseDate": "6/Jul/2010",
+//    "projectId": 10000
+//}
+
+    public Release ConvertRelease(dynamic release)
+        {
+            return release == null ? null :
+                new Release
+                {
+                    Id = (string) release.id,
+                    Title = (string) release.name,
+                    Description = (string) release.description,
+                    StartDate = (DateTime) release.startDate,
+                    ReleaseDate = (DateTime) release.releaseDate
+                };
+        }
+
         public Card ConvertCard(dynamic issue, IEnumerable<JiraField> fieldsMeta)
         {
             _logger.Debug($"Starting conversion of {issue.key}");

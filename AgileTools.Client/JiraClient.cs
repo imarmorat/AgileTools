@@ -197,6 +197,14 @@ namespace AgileTools.Client
             }
         }
 
+        public Release GetRelease(string releaseId)
+        {
+            var response = ExecuteRequest($"{MainRestPrefix}/version/{releaseId}", Method.GET);
+            return response.StatusCode == HttpStatusCode.OK ?
+                ModelConverter.ConvertRelease(response.Data) :
+                null;
+        }
+
         #region Protected methods
 
         protected virtual dynamic ExecuteRequest(string resource, Method method, bool throwExceptionIfWrongReturnCode = true)

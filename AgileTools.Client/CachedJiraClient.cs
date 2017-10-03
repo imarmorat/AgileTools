@@ -172,5 +172,10 @@ namespace AgileTools.Client
         {
             return _client.TryCheckConnection();
         }
+
+        public Release GetRelease(string releaseId)
+        {
+            return _client.GetRelease(releaseId);
+        }
     }
 }
