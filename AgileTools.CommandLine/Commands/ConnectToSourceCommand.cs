@@ -48,7 +48,11 @@ namespace AgileTools.CommandLine.Commands
                 else
                 {
                     Console.Write($"{paramName}: ");
-                    var response = Console.ReadLine();
+
+                    // not optimal, attribute could be added to the field but this is for later
+                    var isItASecret = new List<string> { "password", "pwd", "passwd"  }.Any(s => string.Compare(paramName, s, true) == 0);
+
+                    var response = isItASecret ? Utils.ReadPasswordFromConsole() : Console.ReadLine();
                     initParams.Add(paramName, response);
                 }
             }
