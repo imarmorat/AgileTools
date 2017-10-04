@@ -53,7 +53,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Commands\CommandBase.cs" />
+    <Compile Include="Commands\CommandDiscoverer.cs" />
+    <Compile Include="Commands\CommandError.cs" />
     <Compile Include="Commands\CommandManager.cs" />
+    <Compile Include="Commands\CommandParameter.cs" />
     <Compile Include="Commands\ListSourceCommand.cs" />
     <Compile Include="Commands\ConnectToSourceCommand.cs" />
     <Compile Include="Commands\SaveCardsCommand.cs" />

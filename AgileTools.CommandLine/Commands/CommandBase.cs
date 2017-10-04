@@ -9,6 +9,11 @@ namespace AgileTools.CommandLine.Commands
 {
     public abstract class CommandBase : ICommand
     {
+        /// <summary>
+        /// Injected when command is autodiscovered
+        /// </summary>
+        public virtual CommandManager CommandManager { get; set; }
+
         public abstract string CommandName { get; }
 
         public abstract string Description { get; }
@@ -17,21 +22,21 @@ namespace AgileTools.CommandLine.Commands
 
         public abstract object Run(Context context, IEnumerable<string> rawParameters, ref IList<CommandError> errors);
 
-        public virtual string GetUsage(GetCommandHelpCommand.Level level)
+        public virtual string GetUsage(HelpLevel level)
         {
             var sb = new StringBuilder();
             switch (level)
             {
-                case GetCommandHelpCommand.Level.Summary:
+                case HelpLevel.Summary:
                     sb.Append($"{CommandName} - {Description}");
                     break;
 
-                case GetCommandHelpCommand.Level.Medium:
+                case HelpLevel.Medium:
                     sb.Append($"{CommandName} - ");
                     ExpectedParameters.ForEach(p => sb.Append($"{p.Name} "));
                     break;
 
-                case GetCommandHelpCommand.Level.Full:
+                case HelpLevel.Full:
                     sb.AppendLine($"{CommandName} - {Description}");
                     sb.AppendLine("Parameters:");
                     ExpectedParameters.ForEach(p => sb.AppendLine($"\t{p.Name} - {p.Description}"));

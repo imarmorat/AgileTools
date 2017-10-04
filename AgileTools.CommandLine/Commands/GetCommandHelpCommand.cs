@@ -5,11 +5,12 @@ using System.Linq;
 
 namespace AgileTools.CommandLine.Commands
 {
+    public enum HelpLevel { Summary = 's', Medium = 'd', Full = 'f' };
+
     public class GetCommandHelpCommand : CommandBase, IMacroNotRecordable
     {
         public override string CommandName => "help";
         public override string Description => "gives help on available commands";
-        public enum Level {  Summary = 's', Medium = 'd', Full = 'f' };
         public override IEnumerable<CommandParameter> ExpectedParameters => new List<CommandParameter>
         {
             new CommandParameter.StringParameter("command name", "command you need help on; if not specified, all commands are displayed", true),
@@ -21,7 +22,7 @@ namespace AgileTools.CommandLine.Commands
             {
                 var sb = new StringBuilder();
                 foreach (var cmd in context.CmdManager.KnownCommands)
-                    sb.AppendLine($"- {cmd.GetUsage(Level.Summary)}");
+                    sb.AppendLine($"- {cmd.GetUsage(HelpLevel.Summary)}");
                 return sb.ToString(); 
             }
 
@@ -29,7 +30,7 @@ namespace AgileTools.CommandLine.Commands
             {
                 var commandName = parameters.ElementAt(0);
                 var associatedCommand = context.CmdManager.KnownCommands.FirstOrDefault(c => c.CommandName == commandName);
-                return associatedCommand != null ? associatedCommand.GetUsage(Level.Full) : "unknwon command!";
+                return associatedCommand != null ? associatedCommand.GetUsage(HelpLevel.Full) : "unknwon command!";
             }
 
             errors.Add(new CommandError("parameter count", "too many parameters provided"));

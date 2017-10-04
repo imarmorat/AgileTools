@@ -45,7 +45,7 @@ namespace AgileTools.CommandLine.Commands
             return analyser.Run(context, parameters.Skip(1), ref errors);
         }
 
-        public override string GetUsage(GetCommandHelpCommand.Level level)
+        public override string GetUsage(HelpLevel level)
         {
             var sb = new StringBuilder(base.GetUsage(level));
             sb.AppendLine("*** Analysers ***");

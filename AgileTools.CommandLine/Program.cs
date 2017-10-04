@@ -26,29 +26,16 @@ namespace AgileTools.CommandLine
             context.VariableManager.Set("now.date", () => DateTime.Now.Date.ToString("dd-MMM-yyyy"));
             context.VariableManager.Set("now.time", () => DateTime.Now.ToString("HH:mm"));
             context.CmdManager = new CommandManager(context);
-            context.CmdManager.KnownCommands = new List<ICommand>
-                {
-                    new GetCommandHelpCommand(),
-                    new FetchCardsCommand(),
-                    new ListCardsCommand(),
-                    new ExitCommand(),
-                    new RunAnalyserCommand(),
-                    new MacroCommand(context.CmdManager), // I dont like my design, looks dodgy. change that later. context is passed around so should use it to access cmdmanager
-                    new LoadCardsCommand(),
-                    new SaveCardsCommand(),
-                    new SetVariableCommand(),
-                    new UnSetVariableCommand(),
-                    new ShowVariableCommand(),
-                    new ConnectToSourceCommand(),
-                    new ListSourceCommand()
-                };
+            var commands = CommandDiscoverer.Discover(Directory.GetCurrentDirectory());
+            commands.ForEach(c => c.CommandManager = context.CmdManager);
+            context.CmdManager.KnownCommands = new List<ICommand>(commands);
             context.AvailableCardServices = LoadCardServices("CardServicesConfig.json");
 
             PrintIntro();
 
             do
             {
-                Console.Write((context.CardService != null ? context.CardService.Id : "(/!\\ no card source selected /!\\)") +  " :: ");
+                Console.Write((context.CardService != null ? context.CardService.Id : "(/!\\ no card source set /!\\)") +  " :: ");
                 var cmdLine = Console.ReadLine();
 
                 try

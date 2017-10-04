@@ -71,6 +71,36 @@ namespace AgileTools.CommandLine.Commands
             new CommandParameter.StringParameter("action param", "", true),
         };
 
+        public CommandManager CommandManager
+        {
+            get
+            {
+                return _cmdManager;
+            }
+            set
+            {
+                if (value == null)
+                    throw new ArgumentNullException();
+
+                _cmdManager = value;
+                _cmdManager.OnCmdExecuted += (o, e) =>
+                {
+                    if (CurrentMode == MacroMode.Recording)
+                    {
+                        // We dont record macro commands. If concept of non recordable commands needs to be extended, add a flag in ICommand
+                        if (e.Command is IMacroNotRecordable)
+                            return;
+
+                        CurrentMacro.Steps.Add(new Macro.MacroStep
+                        {
+                            CommandName = e.Command.CommandName,
+                            CommandArgs = e.Parameters
+                        });
+                    }
+                };
+            }
+        }
+
         #region private and protected
 
         protected enum MacroMode { Sleeping, Running, Recording }
@@ -80,24 +110,9 @@ namespace AgileTools.CommandLine.Commands
 
         #endregion
 
-        public MacroCommand(CommandManager cmdManager)
+        public MacroCommand()
         {
-            _cmdManager = cmdManager ?? throw new ArgumentNullException(nameof(cmdManager));
-            _cmdManager.OnCmdExecuted += (o, e) =>
-            {
-                if (CurrentMode == MacroMode.Recording)
-                {
-                    // We dont record macro commands. If concept of non recordable commands needs to be extended, add a flag in ICommand
-                    if (e.Command is IMacroNotRecordable)
-                        return;
-
-                    CurrentMacro.Steps.Add(new Macro.MacroStep
-                    {
-                        CommandName = e.Command.CommandName,
-                        CommandArgs = e.Parameters
-                    });
-                }
-            };
+            
         }
 
         public override object Run(Context context, IEnumerable<string> parameters, ref IList<CommandError> errors)
