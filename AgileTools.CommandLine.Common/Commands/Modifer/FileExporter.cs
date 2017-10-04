@@ -2,7 +2,7 @@
 using System.IO;
 using System.Text.RegularExpressions;
 
-namespace AgileTools.CommandLine.Commands
+namespace AgileTools.CommandLine.Common.Commands
 {
     /// <summary>
     /// Export result to file

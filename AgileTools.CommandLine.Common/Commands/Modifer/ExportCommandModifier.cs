@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AgileTools.CommandLine.Commands.Modifer
+namespace AgileTools.CommandLine.Common.Commands.Modifer
 {
     /// <summary>
     /// Allow command output to be exported. 

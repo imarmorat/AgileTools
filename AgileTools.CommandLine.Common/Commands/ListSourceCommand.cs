@@ -7,7 +7,7 @@ using Newtonsoft.Json;
 using AgileTools.Core.Models;
 using AgileTools.Core;
 
-namespace AgileTools.CommandLine.Commands
+namespace AgileTools.CommandLine.Common.Commands
 {
     public class ListSourceCommand : CommandBase
     {

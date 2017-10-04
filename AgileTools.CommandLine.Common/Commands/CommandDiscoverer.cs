@@ -7,7 +7,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AgileTools.CommandLine.Commands
+namespace AgileTools.CommandLine.Common.Commands
 {
     public class CommandDiscoverer
     {

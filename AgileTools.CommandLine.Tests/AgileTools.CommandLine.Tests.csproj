@@ -55,6 +55,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\AgileTools.CommandLine.Common\AgileTools.CommandLine.Common.csproj">
+      <Project>{CFB04B94-EB81-4895-B9E7-1E11DE7C4820}</Project>
+      <Name>AgileTools.CommandLine.Common</Name>
+    </ProjectReference>
     <ProjectReference Include="..\AgileTools.CommandLine\AgileTools.CommandLine.csproj">
       <Project>{b5da4980-5cd4-46e7-94e9-207ac9f65b30}</Project>
       <Name>AgileTools.CommandLine</Name>

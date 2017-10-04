@@ -1,13 +1,10 @@
-﻿using AgileTools.Analysers;
-using AgileTools.CommandLine.Commands.Modifer;
+﻿using AgileTools.CommandLine.Common.Commands.Modifer;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
-namespace AgileTools.CommandLine.Commands
+namespace AgileTools.CommandLine.Common.Commands
 {
     /// <summary>
     /// Takes care of command execution and notification

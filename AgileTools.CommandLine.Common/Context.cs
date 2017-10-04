@@ -1,11 +1,11 @@
-﻿using AgileTools.CommandLine.Commands;
+﻿using AgileTools.CommandLine.Common.Commands;
 using AgileTools.Core;
 using AgileTools.Core.Models;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace AgileTools.CommandLine
+namespace AgileTools.CommandLine.Common
 {
     public class Context
     {
@@ -13,7 +13,7 @@ namespace AgileTools.CommandLine
 
         public event EventHandler CardServiceChanged;
 
-        public IList<Program.CardManagerConfig> AvailableCardServices { get; set; }
+        public IList<CardManagerConfig> AvailableCardServices { get; set; }
 
         public ICardManagerClient CardService
         {
@@ -37,7 +37,7 @@ namespace AgileTools.CommandLine
         public Context()
         {
             LoadedCards = new List<Card>();
-            AvailableCardServices = new List<Program.CardManagerConfig>();
+            AvailableCardServices = new List<CardManagerConfig>();
         }
     }
 }

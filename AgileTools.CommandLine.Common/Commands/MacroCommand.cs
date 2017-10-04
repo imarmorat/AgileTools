@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AgileTools.CommandLine.Commands
+namespace AgileTools.CommandLine.Common.Commands
 {
     /// <summary>
     /// Lets macro logic know that the command is not recordable in macro mode

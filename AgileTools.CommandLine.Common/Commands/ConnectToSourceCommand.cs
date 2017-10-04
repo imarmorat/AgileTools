@@ -7,7 +7,7 @@ using Newtonsoft.Json;
 using AgileTools.Core.Models;
 using AgileTools.Core;
 
-namespace AgileTools.CommandLine.Commands
+namespace AgileTools.CommandLine.Common.Commands
 {
     public class ConnectToSourceCommand : CommandBase
     {
@@ -37,7 +37,7 @@ namespace AgileTools.CommandLine.Commands
                 return null;
             }
 
-            var cardServiceToUse = Program.CreateSourceFromConfig(cardServiceConfig);
+            var cardServiceToUse = Utils.CreateSourceFromConfig(cardServiceConfig);
 
             //
             // if we have some missing parameters, we ask for it

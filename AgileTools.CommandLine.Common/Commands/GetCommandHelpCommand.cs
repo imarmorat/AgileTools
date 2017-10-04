@@ -4,7 +4,7 @@ using System.Text;
 using System.Linq;
 using AgileTools.Core;
 
-namespace AgileTools.CommandLine.Commands
+namespace AgileTools.CommandLine.Common.Commands
 {
     public enum HelpLevel { Summary = 's', Medium = 'd', Full = 'f' };
 
@@ -24,8 +24,19 @@ namespace AgileTools.CommandLine.Commands
             {
                 var sb = new StringBuilder();
 
-                foreach (var cmd in context.CmdManager.KnownCommands)
-                    sb.AppendLine($"- {cmd.GetUsage(HelpLevel.Summary)}");
+                var result =
+                    from cmd in context.CmdManager.KnownCommands
+                    group cmd by cmd.CommandGroup into grp
+                    select new { GroupName = grp.Key, Commands = grp };
+
+                result.ForEach(grp =>
+                {
+                    sb.AppendLine($"{grp.GroupName}");
+                    grp.Commands.ForEach(cmd => sb.AppendLine($"\t{cmd.CommandName}: {cmd.Description}"));
+                });
+
+                //foreach (var cmd in context.CmdManager.KnownCommands)
+                    //sb.AppendLine($"- {cmd.GetUsage(HelpLevel.Summary)}");
 
                 return sb.ToString(); 
             }

@@ -17,6 +17,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AgileTools.CommandLine", "A
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AgileTools.CommandLine.Tests", "AgileTools.CommandLine.Tests\AgileTools.CommandLine.Tests.csproj", "{47375FB1-90A8-4355-921B-B8A30CD0A791}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AgileTools.CommandLine.Common", "AgileTools.CommandLine.Common\AgileTools.CommandLine.Common.csproj", "{CFB04B94-EB81-4895-B9E7-1E11DE7C4820}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,6 +53,10 @@ Global
 		{47375FB1-90A8-4355-921B-B8A30CD0A791}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{47375FB1-90A8-4355-921B-B8A30CD0A791}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{47375FB1-90A8-4355-921B-B8A30CD0A791}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CFB04B94-EB81-4895-B9E7-1E11DE7C4820}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CFB04B94-EB81-4895-B9E7-1E11DE7C4820}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CFB04B94-EB81-4895-B9E7-1E11DE7C4820}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CFB04B94-EB81-4895-B9E7-1E11DE7C4820}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

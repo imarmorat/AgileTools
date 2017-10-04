@@ -1,5 +1,4 @@
-﻿using AgileTools.CommandLine.Commands;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,10 +11,12 @@ using log4net;
 using System.IO;
 using Newtonsoft.Json;
 using System.Reflection;
+using AgileTools.CommandLine.Common;
+using AgileTools.CommandLine.Common.Commands;
 
 namespace AgileTools.CommandLine
 {
-    public class Program
+    public partial class Program
     {
         private static ILog _logger = LogManager.GetLogger(typeof(Program));
 
@@ -69,22 +70,7 @@ namespace AgileTools.CommandLine
             return sources;
         }
 
-        public static ICardManagerClient CreateSourceFromConfig(CardManagerConfig source)
-        {
-            var assembly = Assembly.LoadFrom(source.AssemblyName);
-            var factory = (ICardManagerFactory) assembly.CreateInstance(source.FactoryClassName);
-            if (factory == null)
-                throw new Exception($"CardService from assembly [{source.AssemblyName}] and class [{source.FactoryClassName}] is a card service factory (type is {factory.GetType()}");
-            return factory.CreateClient();
-        }
 
-        public class CardManagerConfig
-        {
-            public string Id { get; set; }
-            public string AssemblyName { get; set; }
-            public string FactoryClassName { get; set; }
-            public Dictionary<string, string> Parameters { get; set; }
-        }
 
         private static void PrintIntro()
         {

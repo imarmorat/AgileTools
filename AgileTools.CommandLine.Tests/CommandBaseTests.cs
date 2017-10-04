@@ -1,6 +1,6 @@
-﻿using System;
+﻿using AgileTools.CommandLine.Common;
+using AgileTools.CommandLine.Common.Commands;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using AgileTools.CommandLine.Commands;
 
 namespace AgileTools.CommandLine.Tests
 {

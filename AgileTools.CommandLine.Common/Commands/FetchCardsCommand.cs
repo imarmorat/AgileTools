@@ -2,20 +2,17 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
-using System.IO;
-using Newtonsoft.Json;
-using AgileTools.Core.Models;
 
-namespace AgileTools.CommandLine.Commands
+namespace AgileTools.CommandLine.Common.Commands
 {
-    public class SaveCardsCommand : CommandBase
+    public class FetchCardsCommand : CommandBase
     {
-        public override string CommandName => "saveCards";
+        public override string CommandName => "fetchCards";
         public override string CommandGroup => "Card Source";
-        public override string Description => "Save card into a file.";
+        public override string Description => "fetch card from source into the cache (cache is cleared each time)";
         public override IEnumerable<CommandParameter> ExpectedParameters => new List<CommandParameter>
         {
-            new CommandParameter.StringParameter("filename", "File where cards will be stored", false)
+            new CommandParameter.StringParameter("query", "must be compliant with card source manager", false)
         };
 
         public override object Run(Context context, IEnumerable<string> parameters, ref IList<CommandError> errors)
@@ -27,9 +24,12 @@ namespace AgileTools.CommandLine.Commands
                 return null;
             }
 
-            var filename = parameters.ElementAt(0).Trim();
-            var content = JsonConvert.SerializeObject(context.LoadedCards);
-            File.WriteAllText(filename, content);
+            var query = parameters.ElementAt(0).Trim('\"');
+
+            var cards = context.CardService.GetTickets(query);
+            context.LoadedCards.Clear();
+            foreach (var card in cards)
+                context.LoadedCards.Add(card);
 
             return $"Fetched {context.LoadedCards.Count()} cards into cache.";
         }

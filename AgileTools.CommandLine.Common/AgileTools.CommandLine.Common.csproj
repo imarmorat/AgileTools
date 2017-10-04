@@ -4,17 +4,15 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{B5DA4980-5CD4-46E7-94E9-207AC9F65B30}</ProjectGuid>
-    <OutputType>Exe</OutputType>
-    <RootNamespace>AgileTools.CommandLine</RootNamespace>
-    <AssemblyName>AgileTools.CommandLine</AssemblyName>
+    <ProjectGuid>{CFB04B94-EB81-4895-B9E7-1E11DE7C4820}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>AgileTools.CommandLine.Common</RootNamespace>
+    <AssemblyName>AgileTools.CommandLine.Common</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -24,7 +22,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -41,9 +38,6 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.ValueTuple, Version=4.0.2.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.ValueTuple.4.4.0\lib\net461\System.ValueTuple.dll</HintPath>
-    </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -52,16 +46,32 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Program.cs" />
+    <Compile Include="CardManagerConfig.cs" />
+    <Compile Include="Commands\CommandBase.cs" />
+    <Compile Include="Commands\CommandDiscoverer.cs" />
+    <Compile Include="Commands\CommandError.cs" />
+    <Compile Include="Commands\CommandManager.cs" />
+    <Compile Include="Commands\CommandParameter.cs" />
+    <Compile Include="Commands\ConnectToSourceCommand.cs" />
+    <Compile Include="Commands\ExitCommand.cs" />
+    <Compile Include="Commands\FetchCardsCommand.cs" />
+    <Compile Include="Commands\GetCommandHelpCommand.cs" />
+    <Compile Include="Commands\ICommand.cs" />
+    <Compile Include="Commands\ListCardsCommand.cs" />
+    <Compile Include="Commands\ListSourceCommand.cs" />
+    <Compile Include="Commands\LoadCardsCommand.cs" />
+    <Compile Include="Commands\MacroCommand.cs" />
+    <Compile Include="Commands\Modifer\ExportCommandModifier.cs" />
+    <Compile Include="Commands\Modifer\FileExporter.cs" />
+    <Compile Include="Commands\Modifer\ICommandModifierHandler.cs" />
+    <Compile Include="Commands\Modifer\IResultExporter.cs" />
+    <Compile Include="Commands\RunAnalyserCommand.cs" />
+    <Compile Include="Commands\SaveCardsCommand.cs" />
+    <Compile Include="Commands\VariableCommands.cs" />
+    <Compile Include="Context.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utils.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="App.config" />
-    <None Include="CardServicesConfig.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="packages.config" />
+    <Compile Include="VariableManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\AgileTools.Analysers\AgileTools.Analysers.csproj">
@@ -69,17 +79,16 @@
       <Name>AgileTools.Analysers</Name>
     </ProjectReference>
     <ProjectReference Include="..\AgileTools.Client\AgileTools.Client.csproj">
-      <Project>{96f1e844-7cad-464d-aa01-880a30eddcf8}</Project>
+      <Project>{96F1E844-7CAD-464D-AA01-880A30EDDCF8}</Project>
       <Name>AgileTools.Client</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\AgileTools.CommandLine.Common\AgileTools.CommandLine.Common.csproj">
-      <Project>{cfb04b94-eb81-4895-b9e7-1e11de7c4820}</Project>
-      <Name>AgileTools.CommandLine.Common</Name>
     </ProjectReference>
     <ProjectReference Include="..\AgileTools.Core\AgileTools.Core.csproj">
       <Project>{d0222e65-2a1f-4aa6-9d29-2876fc6a163e}</Project>
       <Name>AgileTools.Core</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

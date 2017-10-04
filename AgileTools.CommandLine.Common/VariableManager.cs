@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AgileTools.CommandLine
+namespace AgileTools.CommandLine.Common
 {
     /// <summary>
     /// Variable are case-sensitive

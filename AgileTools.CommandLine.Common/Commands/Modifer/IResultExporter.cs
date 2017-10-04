@@ -1,4 +1,4 @@
-﻿namespace AgileTools.CommandLine.Commands
+﻿namespace AgileTools.CommandLine.Common.Commands
 {
     /// <summary>
     /// Defines a class that can export result generated out of the commands to a specific destination
