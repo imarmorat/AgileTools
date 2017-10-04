@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
+using AgileTools.Core;
 
 namespace AgileTools.CommandLine.Commands
 {
@@ -10,6 +11,7 @@ namespace AgileTools.CommandLine.Commands
     public class GetCommandHelpCommand : CommandBase, IMacroNotRecordable
     {
         public override string CommandName => "help";
+        public override string CommandGroup => "App";
         public override string Description => "gives help on available commands";
         public override IEnumerable<CommandParameter> ExpectedParameters => new List<CommandParameter>
         {
@@ -21,8 +23,10 @@ namespace AgileTools.CommandLine.Commands
             if (parameters.Count() == 0)
             {
                 var sb = new StringBuilder();
+
                 foreach (var cmd in context.CmdManager.KnownCommands)
                     sb.AppendLine($"- {cmd.GetUsage(HelpLevel.Summary)}");
+
                 return sb.ToString(); 
             }
 

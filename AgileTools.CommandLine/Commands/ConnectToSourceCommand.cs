@@ -12,6 +12,7 @@ namespace AgileTools.CommandLine.Commands
     public class ConnectToSourceCommand : CommandBase
     {
         public override string CommandName => "connect";
+        public override string CommandGroup => "Card Source";
         public override string Description => "connect to a source to retrieve cards, etc.";
         public override IEnumerable<CommandParameter> ExpectedParameters => new List<CommandParameter>
         {

@@ -9,50 +9,50 @@ using AgileTools.Core.Models;
 
 namespace AgileTools.CommandLine.Commands
 {
-    public class RunAnalyserCommand : CommandBase
-    {
-        private IEnumerable<ICommand> _knownAnalysers = new List<ICommand>
-        {
-            new VelocityAnalyserHandler(),
-            new BacklogRuleCheckerAnalyserHandler(),
-            new CumulativeFlowAnalyserHandler(),
-            new BurndownAnalyserHandler()
-        };
+    //public class RunAnalyserCommand : CommandBase
+    //{
+    //    private IEnumerable<ICommand> _knownAnalysers = new List<ICommand>
+    //    {
+    //        new VelocityAnalyserHandler(),
+    //        new BacklogRuleCheckerAnalyserHandler(),
+    //        new CumulativeFlowAnalyserHandler(),
+    //        new BurndownAnalyserHandler()
+    //    };
 
-        public override string CommandName => "analyse";
-        public override string Description => "";
-        public override IEnumerable<CommandParameter> ExpectedParameters => new List<CommandParameter>
-        {
-            new CommandParameter.StringParameter("analyser name", "", false)
-        };
+    //    public override string CommandName => "analyse";
+    //    public override string Description => "";
+    //    public override IEnumerable<CommandParameter> ExpectedParameters => new List<CommandParameter>
+    //    {
+    //        new CommandParameter.StringParameter("analyser name", "", false)
+    //    };
 
-        public override object Run(Context context, IEnumerable<string> parameters, ref IList<CommandError> errors)
-        {
-            if (parameters.Count() < 1)
-            {
-                errors.Add(new CommandError("analyser name", "name is mandatory"));
-                return null;
-            }
+    //    public override object Run(Context context, IEnumerable<string> parameters, ref IList<CommandError> errors)
+    //    {
+    //        if (parameters.Count() < 1)
+    //        {
+    //            errors.Add(new CommandError("analyser name", "name is mandatory"));
+    //            return null;
+    //        }
 
-            var analyserToUse = parameters.ElementAt(0);
-            var analyser = _knownAnalysers.FirstOrDefault(ka => ka.CommandName == analyserToUse);
-            if (analyser == null)
-            {
-                errors.Add(new CommandError("analyser name", $"Analyser '{analyserToUse}' unknown. Use 'help' command to list available analysers"));
-                return null;
-            }
+    //        var analyserToUse = parameters.ElementAt(0);
+    //        var analyser = _knownAnalysers.FirstOrDefault(ka => ka.CommandName == analyserToUse);
+    //        if (analyser == null)
+    //        {
+    //            errors.Add(new CommandError("analyser name", $"Analyser '{analyserToUse}' unknown. Use 'help' command to list available analysers"));
+    //            return null;
+    //        }
 
-            return analyser.Run(context, parameters.Skip(1), ref errors);
-        }
+    //        return analyser.Run(context, parameters.Skip(1), ref errors);
+    //    }
 
-        public override string GetUsage(HelpLevel level)
-        {
-            var sb = new StringBuilder(base.GetUsage(level));
-            sb.AppendLine("*** Analysers ***");
-            _knownAnalysers.ForEach(ka => sb.AppendLine($"\tAnalyser {ka.GetUsage(level)}"));
-            return sb.ToString();
-        }
-    }
+    //    public override string GetUsage(HelpLevel level)
+    //    {
+    //        var sb = new StringBuilder(base.GetUsage(level));
+    //        sb.AppendLine("*** Analysers ***");
+    //        _knownAnalysers.ForEach(ka => sb.AppendLine($"\tAnalyser {ka.GetUsage(level)}"));
+    //        return sb.ToString();
+    //    }
+    //}
 
     /// <summary>
     /// Handler for velocity analyser
@@ -60,6 +60,7 @@ namespace AgileTools.CommandLine.Commands
     public class VelocityAnalyserHandler : CommandBase
     {
         public override string CommandName => "velocity";
+        public override string CommandGroup => "Analyser";
         public override string Description => "";
         public override IEnumerable<CommandParameter> ExpectedParameters => new List<CommandParameter>
         {
@@ -91,6 +92,7 @@ namespace AgileTools.CommandLine.Commands
     public class BacklogRuleCheckerAnalyserHandler : CommandBase
     {
         public override string CommandName => "ruleChecker";
+        public override string CommandGroup => "Analyser";
         public override string Description => "";
         public override IEnumerable<CommandParameter> ExpectedParameters => new List<CommandParameter>();
 
@@ -113,6 +115,7 @@ namespace AgileTools.CommandLine.Commands
     public class CumulativeFlowAnalyserHandler : CommandBase
     {
         public override string CommandName => "cumulFlow";
+        public override string CommandGroup => "Analyser";
         public override string Description => "Cumulative Flow analysis helps visualizing bottlenecks and cycle time";
 
         public override IEnumerable<CommandParameter> ExpectedParameters => new List<CommandParameter>
@@ -157,6 +160,7 @@ namespace AgileTools.CommandLine.Commands
     public class BurndownAnalyserHandler : CommandBase
     {
         public override string CommandName => "bdown";
+        public override string CommandGroup => "Analyser";
         public override string Description => "Burndown analysis";
 
         public override IEnumerable<CommandParameter> ExpectedParameters => new List<CommandParameter>

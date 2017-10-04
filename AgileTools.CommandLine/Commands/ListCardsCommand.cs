@@ -8,6 +8,7 @@ namespace AgileTools.CommandLine.Commands
     public class ListCardsCommand : CommandBase
     {
         public override string CommandName => "listCards";
+        public override string CommandGroup => "Card Source";
         public override string Description => "lists cards that are in the cache";
         public override IEnumerable<CommandParameter> ExpectedParameters => new List<CommandParameter>();
 

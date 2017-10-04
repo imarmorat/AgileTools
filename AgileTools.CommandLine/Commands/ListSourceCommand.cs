@@ -12,6 +12,7 @@ namespace AgileTools.CommandLine.Commands
     public class ListSourceCommand : CommandBase
     {
         public override string CommandName => "listSrc";
+        public override string CommandGroup => "Card Source";
         public override string Description => "list all card sources available";
         public override IEnumerable<CommandParameter> ExpectedParameters => new List<CommandParameter>
         {

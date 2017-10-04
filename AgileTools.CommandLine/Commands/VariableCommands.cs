@@ -9,6 +9,7 @@ namespace AgileTools.CommandLine.Commands
     public class SetVariableCommand : CommandBase
     {
         public override string CommandName => "setvar";
+        public override string CommandGroup => "Variable Management";
         public override string Description => "set a value to a particular variable";
         public override IEnumerable<CommandParameter> ExpectedParameters => new List<CommandParameter>()
             {
@@ -29,6 +30,7 @@ namespace AgileTools.CommandLine.Commands
     public class UnSetVariableCommand : CommandBase
     {
         public override string CommandName => "unsetvar";
+        public override string CommandGroup => "Variable Management";
         public override string Description => "remove a particular variable";
         public override IEnumerable<CommandParameter> ExpectedParameters => new List<CommandParameter>()
             {
@@ -55,6 +57,7 @@ namespace AgileTools.CommandLine.Commands
     public class ShowVariableCommand : CommandBase
     {
         public override string CommandName => "showvar";
+        public override string CommandGroup => "Variable Management";
         public override string Description => "show one or all variables already registereds";
         public override IEnumerable<CommandParameter> ExpectedParameters => new List<CommandParameter>()
             {

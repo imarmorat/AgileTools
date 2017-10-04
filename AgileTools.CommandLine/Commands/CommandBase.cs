@@ -16,6 +16,8 @@ namespace AgileTools.CommandLine.Commands
 
         public abstract string CommandName { get; }
 
+        public abstract string CommandGroup { get; }
+
         public abstract string Description { get; }
 
         public abstract IEnumerable<CommandParameter> ExpectedParameters { get; }

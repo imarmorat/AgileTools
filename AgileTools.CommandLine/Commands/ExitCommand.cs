@@ -8,6 +8,7 @@ namespace AgileTools.CommandLine.Commands
     public class ExitCommand : CommandBase
     {
         public override string CommandName => "exit";
+        public override string CommandGroup => "App";
         public override string Description => "Leaves the application";
         public override IEnumerable<CommandParameter> ExpectedParameters => new List<CommandParameter>();
 

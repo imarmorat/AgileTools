@@ -7,6 +7,7 @@ namespace AgileTools.CommandLine.Commands
     {
         CommandManager CommandManager { get; set; }
         string CommandName { get; }
+        string CommandGroup { get; }
         string Description { get; }
         IEnumerable<CommandParameter> ExpectedParameters { get; }
         object Run(Context context, IEnumerable<string> parameters, ref IList<CommandError> errors);

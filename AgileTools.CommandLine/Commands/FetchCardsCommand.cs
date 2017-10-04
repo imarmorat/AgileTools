@@ -8,6 +8,7 @@ namespace AgileTools.CommandLine.Commands
     public class FetchCardsCommand : CommandBase
     {
         public override string CommandName => "fetchCards";
+        public override string CommandGroup => "Card Source";
         public override string Description => "fetch card from source into the cache (cache is cleared each time)";
         public override IEnumerable<CommandParameter> ExpectedParameters => new List<CommandParameter>
         {

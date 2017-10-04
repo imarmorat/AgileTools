@@ -64,6 +64,7 @@ namespace AgileTools.CommandLine.Commands
         }
 
         public override string CommandName => "macro";
+        public override string CommandGroup => "App";
         public override string Description => "allow for macros to be loaded ran recorded, etc.";
         public override IEnumerable<CommandParameter> ExpectedParameters => new List<CommandParameter>
         {

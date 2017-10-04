@@ -11,6 +11,7 @@ namespace AgileTools.CommandLine.Commands
     public class SaveCardsCommand : CommandBase
     {
         public override string CommandName => "saveCards";
+        public override string CommandGroup => "Card Source";
         public override string Description => "Save card into a file.";
         public override IEnumerable<CommandParameter> ExpectedParameters => new List<CommandParameter>
         {

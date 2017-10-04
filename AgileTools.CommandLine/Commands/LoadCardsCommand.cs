@@ -11,6 +11,7 @@ namespace AgileTools.CommandLine.Commands
     public class LoadCardsCommand : CommandBase
     {
         public override string CommandName => "loadCards";
+        public override string CommandGroup => "Card Source";
         public override string Description => "load card from a file. Cache is cleared beforehand";
         public override IEnumerable<CommandParameter> ExpectedParameters => new List<CommandParameter>
         {
