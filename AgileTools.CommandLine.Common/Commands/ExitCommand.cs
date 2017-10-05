@@ -12,7 +12,7 @@ namespace AgileTools.CommandLine.Common.Commands
         public override string Description => "Leaves the application";
         public override IEnumerable<CommandParameter> ExpectedParameters => new List<CommandParameter>();
 
-        public override object Run(Context context, IEnumerable<string> parameters, ref IList<CommandError> errors)
+        public override CommandOutput Run(Context context, IEnumerable<string> parameters)
         {
             Console.WriteLine("Bye bye!");
             Environment.Exit(0);

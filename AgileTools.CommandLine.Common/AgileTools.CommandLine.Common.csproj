@@ -51,6 +51,7 @@
     <Compile Include="Commands\CommandDiscoverer.cs" />
     <Compile Include="Commands\CommandError.cs" />
     <Compile Include="Commands\CommandManager.cs" />
+    <Compile Include="Commands\CommandOutput.cs" />
     <Compile Include="Commands\CommandParameter.cs" />
     <Compile Include="Commands\ConnectToSourceCommand.cs" />
     <Compile Include="Commands\ExitCommand.cs" />

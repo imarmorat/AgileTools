@@ -41,16 +41,15 @@ namespace AgileTools.CommandLine
 
                 try
                 {
-                    var errors = (IList<CommandError>)new List<CommandError>();
-                    var result = context.CmdManager.ExecuteFromString(cmdLine, ref errors);
+                    var result = context.CmdManager.ExecuteFromString(cmdLine);
 
-                    if (errors.Any())
+                    if (!result.IsSuccessful)
                     {
-                        Console.WriteLine("Command failed!");
-                        errors.ForEach(e => Console.WriteLine($"error - [{e.Context}] {e.ErrorMessage}"));
+                        Console.WriteLine($"Command failed: {result.UserMessage}");
+                        result.Errors.ForEach(e => Console.WriteLine($"error - {e.Message}"));
                     }
                     else
-                        Console.WriteLine(result);
+                        Console.WriteLine(result.UserMessage);
                 }
                 catch(Exception ex)
                 {

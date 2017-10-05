@@ -15,14 +15,11 @@ namespace AgileTools.CommandLine.Common.Commands
             new CommandParameter.StringParameter("query", "must be compliant with card source manager", false)
         };
 
-        public override object Run(Context context, IEnumerable<string> parameters, ref IList<CommandError> errors)
+        public override CommandOutput Run(Context context, IEnumerable<string> parameters)
         {
             var paramCount = parameters.Count();
             if (paramCount != 1)
-            {
-                errors.Add(new CommandError("command parameters", "incorrect parameter count, expecting 1"));
-                return null;
-            }
+                return new CommandOutput("Cannot execute", new ArgumentException("incorrect parameter count"), false);
 
             var query = parameters.ElementAt(0).Trim('\"');
 
@@ -31,7 +28,7 @@ namespace AgileTools.CommandLine.Common.Commands
             foreach (var card in cards)
                 context.LoadedCards.Add(card);
 
-            return $"Fetched {context.LoadedCards.Count()} cards into cache.";
+            return new CommandOutput($"Fetched {context.LoadedCards.Count()} cards into cache.", true);
         }
     }
 }

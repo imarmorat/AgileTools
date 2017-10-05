@@ -18,16 +18,16 @@ namespace AgileTools.CommandLine.Common.Commands
         {
         };
 
-        public override object Run(Context context, IEnumerable<string> parameters, ref IList<CommandError> errors)
+        public override CommandOutput Run(Context context, IEnumerable<string> parameters)
         {
             if (!context.AvailableCardServices.Any())
-                return "no source available";
+                return new CommandOutput("No source available!", false);
 
             var sb = new StringBuilder();
             foreach (var src in context.AvailableCardServices)
                 sb.AppendLine($"\t- {src.Id}");
 
-            return sb.ToString() ;
+            return new CommandOutput(sb.ToString(), true);
         }
     }
 }

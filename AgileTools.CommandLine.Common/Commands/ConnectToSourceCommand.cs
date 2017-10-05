@@ -20,22 +20,16 @@ namespace AgileTools.CommandLine.Common.Commands
             //new CommandParameter.StringParameter("sourceparameter", "e.g.: jira, rally", false)
         };
 
-        public override object Run(Context context, IEnumerable<string> parameters, ref IList<CommandError> errors)
+        public override CommandOutput Run(Context context, IEnumerable<string> parameters)
         {
             var paramCount = parameters.Count();
             if (paramCount != ExpectedParameters.Count())
-            {
-                errors.Add(new CommandError("command parameters", "incorrect parameter count"));
-                return null;
-            }
+                return new CommandOutput("Cannot execute", new ArgumentException("incorrect parameter count"), false);
 
             var sourceId = parameters.ElementAt(0).Trim();
-            var cardServiceConfig = context.AvailableCardServices.FirstOrDefault( p=> p.Id == sourceId);
+            var cardServiceConfig = context.AvailableCardServices.FirstOrDefault(p => p.Id == sourceId);
             if (cardServiceConfig == null)
-            {
-                errors.Add(new CommandError("Cannot load card service", $"Service {sourceId} is unknown"));
-                return null;
-            }
+                return new CommandOutput("Cannot load card service", new ArgumentException($"Service {sourceId} is unknown"), false);
 
             var cardServiceToUse = Utils.CreateSourceFromConfig(cardServiceConfig);
 
@@ -51,7 +45,7 @@ namespace AgileTools.CommandLine.Common.Commands
                     Console.Write($"{paramName}: ");
 
                     // not optimal, attribute could be added to the field but this is for later
-                    var isItASecret = new List<string> { "password", "pwd", "passwd"  }.Any(s => string.Compare(paramName, s, true) == 0);
+                    var isItASecret = new List<string> { "password", "pwd", "passwd" }.Any(s => string.Compare(paramName, s, true) == 0);
 
                     var response = isItASecret ? Utils.ReadPasswordFromConsole() : Console.ReadLine();
                     initParams.Add(paramName, response);
@@ -64,14 +58,11 @@ namespace AgileTools.CommandLine.Common.Commands
             //
             // check connection 
             if (!cardServiceToUse.TryCheckConnection())
-            {
-                errors.Add(new CommandError("Connection to service", $"Connection to service failed. Check logs for more information"));
-                return "Connection failed";
-            }
+                return new CommandOutput("Connection to service failed", new Exception($"Connection to service failed. Check logs for more information"), false);
 
             context.CardService = cardServiceToUse;
 
-            return $"Connected.";
+            return new CommandOutput($"Connected.", true);
         }
     }
 }

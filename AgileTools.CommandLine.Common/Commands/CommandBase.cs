@@ -22,7 +22,7 @@ namespace AgileTools.CommandLine.Common.Commands
 
         public abstract IEnumerable<CommandParameter> ExpectedParameters { get; }
 
-        public abstract object Run(Context context, IEnumerable<string> rawParameters, ref IList<CommandError> errors);
+        public abstract CommandOutput Run(Context context, IEnumerable<string> rawParameters);
 
         public virtual string GetUsage(HelpLevel level)
         {

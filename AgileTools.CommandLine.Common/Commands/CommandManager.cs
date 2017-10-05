@@ -32,7 +32,7 @@ namespace AgileTools.CommandLine.Common.Commands
             };
         }
 
-        public object ExecuteCommand(ICommand command, IList<string> parameters, ref IList<CommandError> errors)
+        public CommandOutput ExecuteCommand(ICommand command, IList<string> parameters)
         {
             //
             // check wether command postfix
@@ -48,10 +48,7 @@ namespace AgileTools.CommandLine.Common.Commands
                 select mh;
 
             if (modifers.Count() > 1)
-            {
-                errors.Add(new CommandError("command modifier", "more than one modifier found. expecting 0 or 1."));
-                return null;
-            }
+                return new CommandOutput("Command modifier count is incorrect, expecting 0 or 1.", false);
 
             if (modifers.Count() == 1)
             {
@@ -63,12 +60,10 @@ namespace AgileTools.CommandLine.Common.Commands
             else
                 commandParams = ParseParameter(parameters, _context.VariableManager);
 
-            var output = command.Run(_context, commandParams, ref errors);
+            var output = command.Run(_context, commandParams);
 
-            if (!errors.Any())
+            if (output.IsSuccessful)
                 modifierHandler?.Handle(modifierParams, output);
-            else
-                errors.Add(new CommandError("command modifiger", "Error found during command execution, command modifier skipped"));
             
             NotifyCmdExecuted(command, parameters);
             return output;
@@ -105,7 +100,7 @@ namespace AgileTools.CommandLine.Common.Commands
             return output;
         }
 
-        public object ExecuteFromString(string commandStr, ref IList<CommandError> errors)
+        public CommandOutput ExecuteFromString(string commandStr)
         {
             //
             // 1. gather inputs from the string
@@ -115,10 +110,7 @@ namespace AgileTools.CommandLine.Common.Commands
             foreach (Match match in commandQuery)
             {
                 if (!match.Success)
-                {
-                    errors.Add(new CommandError("command line", $"Issue parsing argument {match.Index} (value: {match.Value})"));
-                    return null;
-                }
+                    return new CommandOutput($"Issue parsing argument {match.Index} (value: {match.Value})", false);
 
                 if (match.Index == 0)
                     commandName = match.Value;
@@ -130,14 +122,11 @@ namespace AgileTools.CommandLine.Common.Commands
             // 2. find associated command
             var command = KnownCommands.FirstOrDefault(c => c.CommandName == commandName);
             if (command == null)
-            {
-                errors.Add(new CommandError("command line",  $"Command '{commandName}' unknown"));
-                return null;
-            }
+                    return new CommandOutput($"Command '{commandName}' unknown", false);
 
             //
             // 3. execute command
-            var output = ExecuteCommand(command, commandParams, ref errors);
+            var output = ExecuteCommand(command, commandParams);
 
             return output;
         }

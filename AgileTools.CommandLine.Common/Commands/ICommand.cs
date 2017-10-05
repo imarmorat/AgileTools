@@ -10,7 +10,7 @@ namespace AgileTools.CommandLine.Common.Commands
         string CommandGroup { get; }
         string Description { get; }
         IEnumerable<CommandParameter> ExpectedParameters { get; }
-        object Run(Context context, IEnumerable<string> parameters, ref IList<CommandError> errors);
+        CommandOutput Run(Context context, IEnumerable<string> parameters);
         string GetUsage(HelpLevel level);
     }
 }

@@ -12,15 +12,16 @@ namespace AgileTools.CommandLine.Common.Commands
         public override string Description => "lists cards that are in the cache";
         public override IEnumerable<CommandParameter> ExpectedParameters => new List<CommandParameter>();
 
-        public override object Run(Context context, IEnumerable<string> parameters, ref IList<CommandError> errors)
+        public override CommandOutput Run(Context context, IEnumerable<string> parameters)
         {
             if (context.LoadedCards.Count() == 0)
-                return "No cards in cache";
+                return new CommandOutput("Cannot execute", new Exception("No cards in cache"), false);
 
             var sb = new StringBuilder();
             foreach (var card in context.LoadedCards)
                 sb.AppendLine($"- {card}");
-            return sb.ToString();
+
+            return new CommandOutput(sb.ToString(), true);
         }
     }
 }

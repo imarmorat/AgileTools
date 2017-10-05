@@ -72,7 +72,7 @@ namespace AgileTools.CommandLine.Common.Commands
             new CommandParameter.StringParameter("action param", "", true),
         };
 
-        public CommandManager CommandManager
+        public override CommandManager CommandManager
         {
             get
             {
@@ -116,7 +116,7 @@ namespace AgileTools.CommandLine.Common.Commands
             
         }
 
-        public override object Run(Context context, IEnumerable<string> parameters, ref IList<CommandError> errors)
+        public override CommandOutput Run(Context context, IEnumerable<string> parameters)
         {
             var action = (string)ExpectedParameters.ElementAt(0).Convert(parameters.ElementAt(0));
             var actionParam = parameters.Count() > 1 ?
@@ -125,28 +125,27 @@ namespace AgileTools.CommandLine.Common.Commands
 
             switch (action.ToLower())
             {
-                case "peek": return PeekMacro(actionParam, errors);
-                case "record": return RecordMacro(actionParam, errors);
-                case "run": return RunMacro(actionParam, context, errors);
-                case "save": return SaveMacro(context, errors);
-                case "cancel": return CancelMacro(context, errors);
+                case "peek": return PeekMacro(actionParam);
+                case "record": return RecordMacro(actionParam);
+                case "run": return RunMacro(actionParam, context);
+                case "save": return SaveMacro(context);
+                case "cancel": return CancelMacro(context);
                 case "status": return GetMacroStatus();
-                case "list": return ListMacros(context, errors);
-                case "delete": return DeleteMacro(actionParam, errors);
+                case "list": return ListMacros(context);
+                case "delete": return DeleteMacro(actionParam);
 
                 default:
-                    errors.Add(new CommandError("action", $"unknown action '{action}'"));
-                    return null;
+                    return new CommandOutput($"unknown action '{action}'", false);
             }
         }
 
         #region sub commands
 
-        private string ListMacros(Context context, IList<CommandError> errors)
+        private CommandOutput ListMacros(Context context)
         {
             var files = Directory.GetFiles(Directory.GetCurrentDirectory(), "macro - *.json");
             if (files.Count() == 0)
-                return "No macro found";
+                return new CommandOutput("No macro found", false);
 
             var sb = new StringBuilder();
             files.ForEach(f =>
@@ -154,80 +153,61 @@ namespace AgileTools.CommandLine.Common.Commands
                 var macro = Macro.LoadFile(f);
                 sb.AppendLine($"- {macro.Name} ({macro.RecordedOn}, {macro.Steps.Count()} steps)");
             });
-            return sb.ToString();
+            return new CommandOutput(sb.ToString(), true);
         }
 
-        private string DeleteMacro(string macroName, IList<CommandError> errors)
+        private CommandOutput DeleteMacro(string macroName)
         {
             var success = Macro.Delete(macroName);
-            if (!success)
-            {
-                errors.Add(new CommandError("delete", $"failed to delete macro: either does not exist or cannot delete"));
-                return null;
-            }
-
-            return "Deleted.";
+            return new CommandOutput( success ? "Deleted." : $"failed to delete macro: either does not exist or cannot delete", success);
         }
 
-        private string GetMacroStatus()
+        private CommandOutput GetMacroStatus()
         {
-            return $"Mode is {CurrentMode}" + (CurrentMacro != null ? $", Current macro is {CurrentMacro.Name}" : "");
+            return new CommandOutput(
+                $"Mode is {CurrentMode}" + (CurrentMacro != null ? $", Current macro is {CurrentMacro.Name}" : ""),
+                true);
         }
 
-        private string CancelMacro(Context context, IList<CommandError> errors)
+        private CommandOutput CancelMacro(Context context)
         {
             if (CurrentMode != MacroMode.Recording)
-            {
-                errors.Add(new CommandError("action", $"cannot cancel as no macro recording"));
-                return null;
-            }
+                return new CommandOutput($"cannot cancel as no macro recording", false);
 
             CurrentMacro = null;
             CurrentMode = MacroMode.Sleeping;
-            return $"Cancelled.";
+            return new CommandOutput($"Cancelled.", true);
         }
 
-        private string SaveMacro(Context context, IList<CommandError> errors)
+        private CommandOutput SaveMacro(Context context)
         {
             if (CurrentMode != MacroMode.Recording)
-            {
-                errors.Add(new CommandError("action", $"cannot save as no macro recording"));
-                return null;
-            }
+                return new CommandOutput($"cannot save as no macro recording", false);
 
             CurrentMacro.Save();
             CurrentMacro = null;
             CurrentMode = MacroMode.Sleeping;
-            return $"Saved.";
+            return new CommandOutput($"Saved.", true);
         }
 
-        private string RecordMacro(string macroName, IList<CommandError> errors)
+        private CommandOutput RecordMacro(string macroName)
         {
             if (CurrentMode != MacroMode.Sleeping)
-            {
-                errors.Add(new CommandError("action", $"cannot start recording as currently in mode '{CurrentMode}'"));
-                return null;
-            }
+                return new CommandOutput($"cannot start recording as currently in mode '{CurrentMode}'", false);
 
             CurrentMacro = new Macro { Name = macroName, RecordedOn = DateTime.Now, Steps = new List<Macro.MacroStep>() };
             CurrentMode = MacroMode.Recording;
-            return $"Starting recording for macro {CurrentMacro.Name}";
+            return new CommandOutput($"Starting recording for macro {CurrentMacro.Name}", true);
         }
 
-        private string RunMacro(string macroName, Context context, IList<CommandError> errors)
+        private CommandOutput RunMacro(string macroName, Context context)
         {
             if (CurrentMode == MacroMode.Recording)
-            {
-                errors.Add(new CommandError("action", $"cannot run a macro if recording"));
-                return null;
-            }
+                return new CommandOutput($"cannot run a macro if recording", false);
 
             var macro = Macro.Load(macroName);
             if (macro == null)
-            {
-                errors.Add(new CommandError("action", $"macro with name {macroName} not found"));
-                return null;
-            }
+                return new CommandOutput($"macro with name {macroName} not found", false);
 
             CurrentMode = MacroMode.Running;
             var output = new StringBuilder();
@@ -240,16 +220,18 @@ namespace AgileTools.CommandLine.Common.Commands
                     if (cmd == null)
                         throw new Exception($"Command '{step.CommandName}' is unknown.Macro terminated.");
 
-                    var result = _cmdManager.ExecuteCommand(cmd, step.CommandArgs.ToList(), ref errors);
+                    var result = _cmdManager.ExecuteCommand(cmd, step.CommandArgs.ToList());
 
                     output.AppendLine(result?.ToString());
-                    if (errors.Any())
+
+                    // TODO: clean this up, not pretty
+                    if (!result.IsSuccessful)
                         throw new Exception($"Errors while running");
                 });
             }
             catch(Exception ex)
             {
-                errors.Add(new CommandError("macro execution", ex.ToString()));
+                return new CommandOutput($"Macro execution encountered issues", ex, false);
             }
             finally
             {
@@ -257,23 +239,17 @@ namespace AgileTools.CommandLine.Common.Commands
             }
 
             output.AppendLine("-------------------------------");
-            return output.ToString() ;
+            return new CommandOutput( output.ToString(), true);
         }
 
-        private string PeekMacro(string macroName, IList<CommandError> errors)
+        private CommandOutput PeekMacro(string macroName)
         {
             if (CurrentMode == MacroMode.Recording)
-            {
-                errors.Add(new CommandError("action", $"cannot peek a macro if recording"));
-                return null;
-            }
+                return new CommandOutput($"cannot peek a macro if recording", false);
 
             var macro = Macro.Load(macroName);
             if (macro == null)
-            {
-                errors.Add(new CommandError("action", $"macro with name {macroName} not found"));
-                return null;
-            }
+                return new CommandOutput($"macro with name {macroName} not found", false);
 
             var sb = new StringBuilder();
             sb.AppendLine($"Macro '{macro.Name}' created on {macro.RecordedOn} with steps:");
@@ -283,7 +259,7 @@ namespace AgileTools.CommandLine.Common.Commands
                 s.CommandArgs.ForEach(ca => sb.Append(" " + ca));
                 sb.AppendLine();
             });
-            return sb.ToString();
+            return new CommandOutput(sb.ToString(), true);
         }
 
         #endregion

@@ -18,7 +18,7 @@ namespace AgileTools.CommandLine.Common.Commands
             new CommandParameter.StringParameter("command name", "command you need help on; if not specified, all commands are displayed", true),
         };
 
-        public override object Run(Context context, IEnumerable<string> parameters, ref IList<CommandError> errors)
+        public override CommandOutput Run(Context context, IEnumerable<string> parameters)
         {
             if (parameters.Count() == 0)
             {
@@ -38,18 +38,17 @@ namespace AgileTools.CommandLine.Common.Commands
                 //foreach (var cmd in context.CmdManager.KnownCommands)
                     //sb.AppendLine($"- {cmd.GetUsage(HelpLevel.Summary)}");
 
-                return sb.ToString(); 
+                return new CommandOutput(sb.ToString(), true); 
             }
 
             if (parameters.Count() == 1)
             {
                 var commandName = parameters.ElementAt(0);
                 var associatedCommand = context.CmdManager.KnownCommands.FirstOrDefault(c => c.CommandName == commandName);
-                return associatedCommand != null ? associatedCommand.GetUsage(HelpLevel.Full) : "unknwon command!";
+                return new CommandOutput(associatedCommand != null ? associatedCommand.GetUsage(HelpLevel.Full) : "unknwon command!", true);
             }
 
-            errors.Add(new CommandError("parameter count", "too many parameters provided"));
-            return null;
+            return new CommandOutput("Too many parameters provided", false);
         }
     }
 }

@@ -18,20 +18,17 @@ namespace AgileTools.CommandLine.Common.Commands
             new CommandParameter.StringParameter("filename", "File where cards will be stored", false)
         };
 
-        public override object Run(Context context, IEnumerable<string> parameters, ref IList<CommandError> errors)
+        public override CommandOutput Run(Context context, IEnumerable<string> parameters)
         {
             var paramCount = parameters.Count();
             if (paramCount != 1)
-            {
-                errors.Add(new CommandError("command parameters", "incorrect parameter count, expecting 1"));
-                return null;
-            }
+                return new CommandOutput("Incorrect parameter count, expecting 1", false);
 
             var filename = parameters.ElementAt(0).Trim();
             var content = JsonConvert.SerializeObject(context.LoadedCards);
             File.WriteAllText(filename, content);
 
-            return $"Fetched {context.LoadedCards.Count()} cards into cache.";
+            return new CommandOutput($"Fetched {context.LoadedCards.Count()} cards into cache.", true);
         }
     }
 }

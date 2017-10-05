@@ -24,20 +24,17 @@ namespace AgileTools.CommandLine.Common.Commands
             new CommandParameter.IntParameter("bucketSize", "In days")
         };
 
-        public override object Run(Context context, IEnumerable<string> parameters, ref IList<CommandError> errors)
+        public override CommandOutput Run(Context context, IEnumerable<string> parameters)
         {
             if (parameters.Count() != 3)
-            {
-                errors.Add(new CommandError("parameter count", "expecting 3 parameters"));
-                return null;
-            }
+                return new CommandOutput("Expecting 3 parameters", false);
 
             var startDate = (DateTime)ExpectedParameters.ElementAt(0).Convert(parameters.ElementAt(0));
             var endDate = (DateTime)ExpectedParameters.ElementAt(1).Convert(parameters.ElementAt(1));
             var bucketSize = new TimeSpan((int)ExpectedParameters.ElementAt(2).Convert(parameters.ElementAt(2)), 0, 0, 0);
 
             var velocityAnalyser = new VelocityAnalyser(context.LoadedCards, startDate, endDate, bucketSize);
-            return velocityAnalyser.Analyse().ToString();
+            return new CommandOutput(velocityAnalyser.Analyse().ToString(), true);
         }
     }
 
@@ -51,7 +48,7 @@ namespace AgileTools.CommandLine.Common.Commands
         public override string Description => "";
         public override IEnumerable<CommandParameter> ExpectedParameters => new List<CommandParameter>();
 
-        public override object Run(Context context, IEnumerable<string> parameters, ref IList<CommandError> errors)
+        public override CommandOutput Run(Context context, IEnumerable<string> parameters)
         {
             var rules = new List<RuleDefinitionBase>
             {
@@ -60,7 +57,7 @@ namespace AgileTools.CommandLine.Common.Commands
 
             var velocityAnalyser = new RuleCheckerAnalyser(rules, context.LoadedCards);
 
-            return velocityAnalyser.Analyse().ToString();
+            return new CommandOutput(velocityAnalyser.Analyse().ToString(), true);
         }
     }
 
@@ -81,13 +78,10 @@ namespace AgileTools.CommandLine.Common.Commands
             new CommandParameter.StringParameter("statuses", "list of status to consider. if not specified, all statuses", true)
         };
 
-        public override object Run(Context context, IEnumerable<string> parameters, ref IList<CommandError> errors)
+        public override CommandOutput Run(Context context, IEnumerable<string> parameters)
         {
             if (parameters.Count() != 3)
-            {
-                errors.Add(new CommandError("parameter count", "expecting 3 parameters"));
-                return null;
-            }
+                return new CommandOutput("Expecting 3 parameters", false);
 
             var startDate = (DateTime)ExpectedParameters.ElementAt(0).Convert(parameters.ElementAt(0));
             var endDate = (DateTime)ExpectedParameters.ElementAt(1).Convert(parameters.ElementAt(1));
@@ -97,7 +91,7 @@ namespace AgileTools.CommandLine.Common.Commands
                 null;
 
             var cmAnalyser = new CumulativeFlowAnalyser(context.CardService, context.LoadedCards, statusList, bucketSize, startDate, endDate);
-            return cmAnalyser.Analyse();
+            return new CommandOutput(cmAnalyser.Analyse().ToString(), true);
         }
 
         private List<CardStatus> ExtractStatusList(Context context, string statusList)
@@ -128,13 +122,10 @@ namespace AgileTools.CommandLine.Common.Commands
             new CommandParameter.IntParameter("maxVelocity", "maximum velocity (confidence range)"),
         };
 
-        public override object Run(Context context, IEnumerable<string> parameters, ref IList<CommandError> errors)
+        public override CommandOutput Run(Context context, IEnumerable<string> parameters)
         {
             if (parameters.Count() != ExpectedParameters.Count())
-            {
-                errors.Add(new CommandError("parameter count", $"expecting {ExpectedParameters.Count()} parameters"));
-                return null;
-            }
+                return new CommandOutput($"Expecting {ExpectedParameters.Count()} parameters", false);
 
             var startDate = (DateTime)ExpectedParameters.ElementAt(0).Convert(parameters.ElementAt(0));
             var endDate = (DateTime)ExpectedParameters.ElementAt(1).Convert(parameters.ElementAt(1));
@@ -144,7 +135,7 @@ namespace AgileTools.CommandLine.Common.Commands
             var maxVelocity = (int)ExpectedParameters.ElementAt(5).Convert(parameters.ElementAt(5));
 
             var cmAnalyser = new BurndownAnalyser(context.LoadedCards, startDate, endDate, targetDate, bucketSize, minVelocity, maxVelocity);
-            return cmAnalyser.Analyse();
+            return new CommandOutput(cmAnalyser.Analyse().ToString(), true);
         }
     }
 }
