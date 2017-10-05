@@ -15,7 +15,7 @@ namespace AgileTools.CommandLine.Common.Commands
         public override CommandOutput Run(Context context, IEnumerable<string> parameters)
         {
             if (context.LoadedCards.Count() == 0)
-                return new CommandOutput("Cannot execute", new Exception("No cards in cache"), false);
+                return new CommandOutput("Cannot execute, no cards in cache", false);
 
             var sb = new StringBuilder();
             foreach (var card in context.LoadedCards)

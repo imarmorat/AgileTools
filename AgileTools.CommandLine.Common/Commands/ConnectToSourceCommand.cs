@@ -24,12 +24,12 @@ namespace AgileTools.CommandLine.Common.Commands
         {
             var paramCount = parameters.Count();
             if (paramCount != ExpectedParameters.Count())
-                return new CommandOutput("Cannot execute", new ArgumentException("incorrect parameter count"), false);
+                return new CommandOutput("Incorrect parameter count", false);
 
             var sourceId = parameters.ElementAt(0).Trim();
             var cardServiceConfig = context.AvailableCardServices.FirstOrDefault(p => p.Id == sourceId);
             if (cardServiceConfig == null)
-                return new CommandOutput("Cannot load card service", new ArgumentException($"Service {sourceId} is unknown"), false);
+                return new CommandOutput($"Service {sourceId} is unknown", false);
 
             var cardServiceToUse = Utils.CreateSourceFromConfig(cardServiceConfig);
 

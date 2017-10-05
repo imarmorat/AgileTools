@@ -19,7 +19,7 @@ namespace AgileTools.CommandLine.Common.Commands
         {
             var paramCount = parameters.Count();
             if (paramCount != 1)
-                return new CommandOutput("Cannot execute", new ArgumentException("incorrect parameter count"), false);
+                return new CommandOutput("Incorrect parameter count", false);
 
             var query = parameters.ElementAt(0).Trim('\"');
 
