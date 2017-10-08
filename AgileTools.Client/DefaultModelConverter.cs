@@ -43,6 +43,7 @@ namespace AgileTools.Client
             { "Duplicate", CardResolution.Cancelled },
             { "Cannot Reproduce", CardResolution.Cancelled }
         };
+        protected Dictionary<CardFieldMeta, string> _fieldMappingOverrides = new Dictionary<CardFieldMeta, string>();
         protected static CardTagCategory LabelTagCategory = new CardTagCategory("label");
         protected static CardTagCategory FixVersionTagCategory = new CardTagCategory("fixVersion");
         protected static CardTagCategory ComponentTagCategory = new CardTagCategory("component");
@@ -52,7 +53,7 @@ namespace AgileTools.Client
         /// <summary>
         /// Constructor
         /// </summary>
-        public DefaultModelConverter(ICardManagerClient cmClient)
+        public DefaultModelConverter(ICardManagerClient cmClient, Dictionary<CardFieldMeta, string> overrides = null)
         {
             _client = cmClient ?? throw new ArgumentNullException(nameof(cmClient));
             _jiraFieldMapping = new List<Tuple<string, CardFieldMeta, Func<dynamic, object>, Func<string, string, ICardManagerClient, object>>>
@@ -160,6 +161,8 @@ namespace AgileTools.Client
                     (str1, str2, client) => string.IsNullOrEmpty(str1) ? (User) null : client.GetUser((string) str1)
                     ),
             };
+            if (overrides != null)
+                _fieldMappingOverrides = new Dictionary<CardFieldMeta, string>(overrides);
         }
 
         public Sprint ConvertSprint(dynamic sprint)
@@ -242,8 +245,26 @@ namespace AgileTools.Client
             var mapping = new Dictionary<CardFieldMeta, object>();
             _jiraFieldMapping.ForEach(jf =>
             {
-                var jiraField = fieldsMeta.FirstOrDefault(ff => ff.Name == jf.Item1);
-                var fieldValue = GetPropertyValue(issue.fields, jiraField.Id);
+                // first check whether we have override for that field
+                var hasFieldOverride = _fieldMappingOverrides.ContainsKey(jf.Item2);
+                var fieldName = string.Empty;
+
+                if (hasFieldOverride)
+                    fieldName = _fieldMappingOverrides[jf.Item2];
+                else
+                {
+                    var jiraFields = fieldsMeta.Where(ff => ff.Name == jf.Item1);
+
+                    if (jiraFields.Count() == 0)
+                        throw new Exception($"No field with name {jf.Item1} found");
+
+                    if (jiraFields.Count() > 1)
+                        throw new Exception($"Found more than one field with same name {jf.Item1}");
+                    
+                    fieldName = jiraFields.ElementAt(0).Id;
+                }
+
+                var fieldValue = GetPropertyValue(issue.fields, fieldName);
                 mapping.Add(jf.Item2, jf.Item3(fieldValue));
             });
 

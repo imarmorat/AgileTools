@@ -9,9 +9,6 @@ namespace AgileTools.CommandLine.Common.Commands
 {
     public class CommandOutput
     {
-        private string v1;
-        private bool v2;
-
         /// <summary>
         /// Message that will be displayed to the user
         /// </summary>
